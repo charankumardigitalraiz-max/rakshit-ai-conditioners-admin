@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Package, Briefcase, Award, Settings, LogOut, Search, Bell, MessageSquare, Mail } from 'lucide-react'
+import { LayoutDashboard, Package, Briefcase, Award, Settings, LogOut, Search, Bell, MessageSquare, Mail, Users, Quote } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../store/slices/authSlice'
@@ -22,9 +22,11 @@ const AdminLayout = () => {
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/products', label: 'Products', icon: Package },
     { path: '/projects', label: 'Projects', icon: Briefcase },
+    { path: '/clients', label: 'Clients', icon: Users },
+    { path: '/testimonials', label: 'Testimonials', icon: Quote },
     { path: '/achievements', label: 'Achievements', icon: Award },
     { path: '/enquiries', label: 'Enquiries', icon: MessageSquare },
-    // { path: '/contacts', label: 'Contact Messages', icon: Mail },
+    { path: '/contacts', label: 'Messages', icon: Mail },
   ]
 
   return (

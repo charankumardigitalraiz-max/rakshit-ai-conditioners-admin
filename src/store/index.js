@@ -6,6 +6,8 @@ import dashboardCountsReducer from './slices/dashboardCountsSlice';
 import authReducer from './slices/authSlice';
 import enquiriesReducer from './slices/enquirySlice';
 import contactsReducer from './slices/contactSlice';
+import clientsReducer from './slices/clientsSlice';
+import testimonialsReducer from './slices/testimonialsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +18,7 @@ export const store = configureStore({
     auth: authReducer,
     enquiries: enquiriesReducer,
     contacts: contactsReducer,
+    clients: clientsReducer,
+    testimonials: testimonialsReducer,
   },
 });

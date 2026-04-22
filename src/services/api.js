@@ -3,6 +3,7 @@ import axios from 'axios';
 // Central API configuration
 const API = axios.create({
   baseURL: 'https://rakshit-ai-conditioners-backend.onrender.com/api/admin',
+  // baseURL: 'http://localhost:9000/api/admin',
 });
 
 // Add a request interceptor to attach the auth token
@@ -96,6 +97,31 @@ export const contactAPI = {
   getAll: (params) => API.get('/contacts', { params }),
   updateStatus: (id, status) => API.put(`/contacts/${id}`, { status }),
   delete: (id) => API.delete(`/contacts/${id}`),
+};
+
+// ─── Clients ──────────────────────────────────────────────────
+export const clientsAPI = {
+  getAll: (params) => API.get('/clients', { params }),
+  getOne: (id) => API.get(`/clients/${id}`),
+  create: (data) => {
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    return API.post('/clients', data, config);
+  },
+  update: (id, data) => {
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    return API.put(`/clients/${id}`, data, config);
+  },
+  delete: (id) => API.delete(`/clients/${id}`),
+};
+
+// ─── Testimonials ─────────────────────────────────────────────
+export const testimonialsAPI = {
+  getAll: (params) => API.get('/testimonials', { params }),
+  create: (data) => {
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    return API.post('/testimonials', data, config);
+  },
+  delete: (id) => API.delete(`/testimonials/${id}`),
 };
 
 // ─── Dashboard ───────────────────────────────────────────────

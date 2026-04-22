@@ -51,6 +51,7 @@ const Achievements = () => {
       status: achievement.status
     })
     setPreviewImage(achievement.image)
+    dispatch(fetchAchievements())
     setIsFormOpen(true)
   }
 

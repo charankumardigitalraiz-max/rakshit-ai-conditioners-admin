@@ -261,9 +261,9 @@ const Enquiries = () => {
                       <p className="text-[11px] text-slate-500 mb-1.5 truncate">{selectedEnquiry.product.shortDescription}</p>
                       <div className="flex items-center gap-2">
                         <span className="px-1.5 py-0.5 bg-brand text-white text-[9px] font-extrabold rounded uppercase tracking-tighter">
-                          {selectedEnquiry.product.variantDetails.capacity}
+                          {selectedEnquiry.product?.variantDetails?.capacity || 'N/A'}
                         </span>
-                        {selectedEnquiry.product.variantDetails?.price && (
+                        {selectedEnquiry.product?.variantDetails?.price && (
                           <span className="text-xs font-bold text-brand">₹{selectedEnquiry.product.variantDetails.price.toLocaleString()}</span>
                         )}
                       </div>
