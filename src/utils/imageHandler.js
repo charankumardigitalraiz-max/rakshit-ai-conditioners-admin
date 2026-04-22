@@ -1,4 +1,4 @@
-export const SERVER_URL = 'https://rakshit-ai-conditioners-backend.vercel.app';
+export const SERVER_URL = 'https://rakshit-ai-conditioners-backend.onrender.com';
 
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return '';
