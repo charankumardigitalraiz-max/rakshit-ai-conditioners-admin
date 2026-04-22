@@ -64,7 +64,7 @@ const AdminLayout = () => {
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed h-full z-10">
         <div className="h-16 flex items-center px-6 border-b border-slate-200">
           <div className="text-brand font-bold text-xl tracking-tight flex items-center gap-2">
-            <img src="/logo.png" alt="Logo" className="h-8 w-auto object-contain" />
+            {/* <img src="/logo.png" alt="Logo" className="h-8 w-auto object-contain" /> */}
             Admin Hub
           </div>
         </div>

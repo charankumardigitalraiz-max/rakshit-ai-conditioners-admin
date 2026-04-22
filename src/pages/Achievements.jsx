@@ -123,11 +123,11 @@ const Achievements = () => {
                     </div>
                   </>
                 )}
-                <div className="absolute top-3 right-3">
+                {/* <div className="absolute top-3 right-3">
                   <button className="p-1.5 text-slate-400 hover:text-slate-700 bg-white/80 rounded-md backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200 shadow-sm">
                     <MoreVertical className="w-4 h-4" />
                   </button>
-                </div>
+                </div> */}
               </div>
               <div className="p-5 flex-1 flex flex-col">
                 <div className="flex items-center justify-between mb-2">

@@ -1,4 +1,4 @@
-export const SERVER_URL = 'http://localhost:9000';
+export const SERVER_URL = 'https://rakshit-ai-conditioners-backend.vercel.app';
 
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return '';
