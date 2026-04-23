@@ -21,12 +21,13 @@ const AdminLayout = () => {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/products', label: 'Products', icon: Package },
+    { path: '/Category', label: 'Category', icon: Package },
     { path: '/projects', label: 'Projects', icon: Briefcase },
     { path: '/clients', label: 'Clients', icon: Users },
     { path: '/testimonials', label: 'Testimonials', icon: Quote },
     { path: '/achievements', label: 'Achievements', icon: Award },
     { path: '/enquiries', label: 'Enquiries', icon: MessageSquare },
-    { path: '/contacts', label: 'Messages', icon: Mail },
+    // { path: '/contacts', label: 'Messages', icon: Mail },
   ]
 
   return (

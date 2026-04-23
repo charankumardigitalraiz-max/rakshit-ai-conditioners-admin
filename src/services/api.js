@@ -103,15 +103,19 @@ export const contactAPI = {
 export const clientsAPI = {
   getAll: (params) => API.get('/clients', { params }),
   getOne: (id) => API.get(`/clients/${id}`),
-  create: (data) => {
-    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
-    return API.post('/clients', data, config);
-  },
-  update: (id, data) => {
-    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
-    return API.put(`/clients/${id}`, data, config);
-  },
+  create: (data) => API.post('/clients', data),
+  update: (id, data) => API.put(`/clients/${id}`, data),
   delete: (id) => API.delete(`/clients/${id}`),
+};
+
+
+// ─── Categories ──────────────────────────────────────────────────
+export const categoriesAPI = {
+  getAll: (params) => API.get('/categories', { params }),
+  getOne: (id) => API.get(`/categories/${id}`),
+  create: (data) => API.post('/categories', data),
+  update: (id, data) => API.put(`/categories/${id}`, data),
+  delete: (id) => API.delete(`/categories/${id}`),
 };
 
 // ─── Testimonials ─────────────────────────────────────────────

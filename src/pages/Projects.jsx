@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Plus, Search, Filter, Edit, Trash2, MapPin, X, Upload, Briefcase, CheckCircle2 } from 'lucide-react'
 import { fetchProjects, createProject, deleteProjectAsync, updateProjectAsync } from '../store/slices/projectsSlice'
+import { fetchCategories } from '../store/slices/categorySlice'
 import { getImageUrl } from '../utils/imageHandler'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
@@ -20,8 +21,10 @@ const Projects = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [errors, setErrors] = useState({})
 
   const { items: projects, loading, error, pagination } = useSelector(state => state.projects)
+  const categories = useSelector(state => state.categories?.items || [])
   const dispatch = useDispatch()
 
   // Debounce search term
@@ -34,17 +37,40 @@ const Projects = () => {
   }, [searchTerm])
 
   useEffect(() => {
-    dispatch(fetchProjects({
+    const params = {
       page: currentPage,
       limit: 10,
       search: debouncedSearch,
-      category: categoryFilter,
-      status: statusFilter
-    }))
+      status: statusFilter !== 'All' ? statusFilter : null,
+      category: categoryFilter !== 'All' ? categoryFilter : null,
+    }
+
+    dispatch(fetchProjects(params))
   }, [dispatch, currentPage, debouncedSearch, categoryFilter, statusFilter])
 
-  const categories = ['All', 'Commercial', 'Residential', 'Industrial', 'Healthcare', 'Hospitality']
+  useEffect(() => {
+    dispatch(fetchCategories({ page: 1, limit: 50 }))
+  }, [dispatch])
+
   const statuses = ['All', 'Planning', 'In Progress', 'Completed']
+
+  const validateForm = () => {
+    const newErrors = {}
+    if (!formData.title.trim()) {
+      newErrors.title = 'Project title is required'
+    }
+    if (!formData.category) {
+      newErrors.category = 'Category is required'
+    }
+    if (!selectedFile && !previewImage) {
+      newErrors.image = 'Project image is required'
+    }
+    if (selectedFile && selectedFile.size > 5 * 1024 * 1024) {
+      newErrors.image = 'Image size must be less than 5MB'
+    }
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.pages) {
@@ -54,6 +80,10 @@ const Projects = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
 
     const data = new FormData()
     Object.keys(formData).forEach(key => {
@@ -73,7 +103,7 @@ const Projects = () => {
       }
       setIsFormOpen(false)
       resetForm()
-      dispatch(fetchProjects({ page: currentPage, limit: 10, search: debouncedSearch, category: categoryFilter, status: statusFilter }))
+      dispatch(fetchProjects({ page: currentPage, limit: 10, search: debouncedSearch, category: null, status: null }))
     } catch (err) {
       toast.error(err.message || 'Failed to save project')
     }
@@ -92,25 +122,27 @@ const Projects = () => {
   // }
 
   const resetForm = () => {
-    setFormData({ title: '', category: '', location: '', date: '', status: 'Planning', hvacSystemType: '', totalCapacity: '', description: '' })
+    setFormData({ title: '', category: '', location: '', date: '', status: 'Planning', hvacSystemType: '', totalCapacity: '', description: '', })
     setEditingId(null)
     setSelectedFile(null)
     setPreviewImage(null)
+    setErrors({})
   }
 
   const handleEdit = (project) => {
     setFormData({
       title: project.title,
-      category: project.category,
+      category: project.category?._id || project.category || '',
       location: project.location,
       date: project.date,
       status: project.status,
       hvacSystemType: project.hvacSystemType,
       totalCapacity: project.totalCapacity,
-      description: project.description
+      description: project.description,
     })
     setEditingId(project._id || project.id)
     setPreviewImage(getImageUrl(project.image))
+    setErrors({})
     setIsFormOpen(true)
   }
 
@@ -123,6 +155,7 @@ const Projects = () => {
         setPreviewImage(reader.result)
       }
       reader.readAsDataURL(file)
+      if (errors.image) setErrors({ ...errors, image: '' })
     }
   }
 
@@ -187,22 +220,28 @@ const Projects = () => {
                   onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
                   className="bg-transparent text-xs font-bold text-slate-600 outline-none cursor-pointer"
                 >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
+                    <option value="">All</option>
+              {categories.map(cat => (
+                  <option key={cat._id || cat.id} value={cat._id}>
+                    {cat.name}
+                  </option>
+              ))}
                 </select>
               </div>
 
-              <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
-                <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
+                            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+                <Briefcase className="w-3.5 h-3.5 text-slate-400" />
                 <select
                   value={statusFilter}
                   onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
                   className="bg-transparent text-xs font-bold text-slate-600 outline-none cursor-pointer"
                 >
-                  {statuses.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
+                    <option value="">All</option>
+                    {statuses.map(status => (
+                        <option key={status._id || status.id} value={status.name}>
+                            {status}
+                        </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -248,7 +287,7 @@ const Projects = () => {
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">
-                      {project.category}
+                      {project?.category?.name || 'N/A'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -342,27 +381,21 @@ const Projects = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Project Title</label>
-                    <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Wipro Corporate Office" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" required />
+                    <input type="text" value={formData.title} onChange={e => { setFormData({ ...formData, title: e.target.value }); if (errors.title) setErrors({ ...errors, title: '' }); }} placeholder="e.g. Wipro Corporate Office" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" required />
+                    {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Category</label>
-                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" required>
+                    <select value={formData.category} onChange={e => { setFormData({ ...formData, category: e.target.value }); if (errors.category) setErrors({ ...errors, category: '' }); }} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" required>
+
                       <option value="">Select category</option>
-                      <option value="Commercial">Commercial</option>
-                      <option value="Residential">Residential</option>
-                      <option value="Industrial">Industrial</option>
-                      <option value="Healthcare">Healthcare</option>
-                      <option value="Hospitality">Hospitality</option>
-                    </select>
+                      {categories.map(cat => (
+                        <option key={cat._id || cat.id} value={cat._id}>{cat.name}</option>
+                      ))}
+                      </select>
+                    {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
+
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Location</label>
-                    <input type="text" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} placeholder="e.g. Bangalore, KA" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" />
-                  </div>
-                  {/* <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Timeline / Date</label>
-                    <input type="text" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} placeholder="e.g. Oct 2025 or Ongoing" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" />
-                  </div> */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Status</label>
                     <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all">
@@ -371,14 +404,14 @@ const Projects = () => {
                       <option value="Completed">Completed</option>
                     </select>
                   </div>
-                  {/* <div className="space-y-2">
+                 {/* <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">HVAC System Type</label>
                     <input type="text" value={formData.hvacSystemType} onChange={e => setFormData({...formData, hvacSystemType: e.target.value})} placeholder="e.g. VRV System, Split AC, Ducted" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">Total Capacity / Tonnage</label>
-                    <input type="text" value={formData.totalCapacity} onChange={e => setFormData({...formData, totalCapacity: e.target.value})} placeholder="e.g. 500 TR" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" />
                   </div> */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">City</label>
+                    <input type="text" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} placeholder="e.g. New York" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand focus:ring-2 focus:ring-brand/20 rounded-lg px-4 py-2.5 text-sm text-slate-900 outline-none transition-all" />
+                  </div> 
                 </div>
 
                 <div className="space-y-2">
@@ -405,6 +438,7 @@ const Projects = () => {
                       </>
                     )}
                   </label>
+                  {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                 </div>
               </form>
             </div>

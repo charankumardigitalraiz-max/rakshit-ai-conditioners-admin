@@ -15,6 +15,7 @@ import ContactMessages from './pages/ContactMessages'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Clients from './pages/Clients'
+import Category from './pages/Category';
 import Testimonials from './pages/Testimonials'
 
 // Protected Route Component
@@ -62,6 +63,7 @@ function App() {
           <Route path="enquiries" element={<Enquiries />} />
           <Route path="contacts" element={<ContactMessages />} />
           <Route path="clients" element={<Clients />} />
+          <Route path="category" element={<Category />} />
           <Route path="testimonials" element={<Testimonials />} />
           <Route path="profile" element={<Profile />} />
           <Route path="*" element={<div className="p-8 text-center text-slate-500">Page under construction</div>} />
