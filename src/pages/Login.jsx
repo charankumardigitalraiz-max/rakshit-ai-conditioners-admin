@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { login, reset } from '../store/slices/authSlice'
-import { LogIn, Mail, Lock, Loader2, AlertCircle } from 'lucide-react'
+import { LogIn, Mail, Lock, Loader2, AlertCircle, Shield, Globe, Activity } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 const Login = () => {
@@ -47,38 +47,69 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand/5 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] bg-brand/10 rounded-full blur-3xl"></div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-4 relative overflow-hidden">
+      {/* Subtle Background Accent */}
+      <div className="absolute top-0 right-0 w-full h-full opacity-[0.05] pointer-events-none">
+        <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <circle cx="100" cy="0" r="40" fill="#0072bc" />
+        </svg>
+      </div>
 
-      <div className="w-full max-w-md px-6 relative z-10">
-        {/* Logo / Branding */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-xl shadow-brand/10 border border-slate-100 mb-6 p-4">
-            <img src="/logo.png" alt="Rakshith Air Conditioners" className="w-full h-full object-contain" />
+      <div className="w-full max-w-[820px] flex flex-col md:flex-row bg-white rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.06)] border border-slate-100 z-10">
+        
+        {/* ── LEFT PANEL: BRANDING ── */}
+        <div className="w-full md:w-[35%] bg-[#0072bc] p-8 md:p-10 flex flex-col justify-between relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="w-14 h-14 bg-white rounded-xl p-2.5 shadow-lg mb-8 flex items-center justify-center">
+              <img src="/logo.png" alt="Rakshith" className="w-full h-full object-contain" />
+            </div>
+            <h2 className="text-2xl font-bold text-white tracking-tight leading-tight">
+              Rakshith <br />
+              <span className="text-blue-200">Admin</span>
+            </h2>
+            <p className="text-blue-100/60 text-xs mt-4 font-medium leading-relaxed">
+              Daikin Certified HVAC Network.
+            </p>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Admin Portal</h1>
-          <p className="text-slate-500 font-medium tracking-wide">Enter your credentials to manage resources</p>
+
+          <div className="relative z-10 space-y-5 mt-10">
+            <div className="flex items-center gap-3 text-blue-100/50">
+              <Shield className="w-4 h-4" />
+              <span className="text-[9px] font-bold uppercase tracking-widest">Secure Access</span>
+            </div>
+            <div className="flex items-center gap-3 text-blue-100/50">
+              <Globe className="w-4 h-4" />
+              <span className="text-[9px] font-bold uppercase tracking-widest">v2.4 Core</span>
+            </div>
+            <div className="flex items-center gap-3 text-blue-100/50">
+              <Activity className="w-4 h-4" />
+              <span className="text-[9px] font-bold uppercase tracking-widest">Online</span>
+            </div>
+          </div>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-slate-200/50 border border-white p-8 md:p-10 transition-all duration-500 hover:shadow-brand/5">
+        {/* ── RIGHT PANEL: FORM ── */}
+        <div className="w-full md:w-[65%] p-8 md:p-12 bg-white flex flex-col justify-center">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Admin Sign-in</h1>
+            <p className="text-slate-400 text-xs mt-2 font-medium">Please enter your credentials to proceed.</p>
+          </div>
+
           {isError && (
-            <div className="mb-6 flex items-center gap-3 bg-rose-50 text-rose-600 px-4 py-3 rounded-xl border border-rose-100 animate-in fade-in slide-in-from-top-4">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <p className="text-sm font-semibold">{message || 'Invalid credentials. Please try again.'}</p>
+            <div className="mb-6 flex items-center gap-3 bg-rose-50 text-rose-600 px-4 py-3 rounded-xl border border-rose-100">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <p className="text-[12px] font-bold">{message || 'Login failed.'}</p>
             </div>
           )}
 
           <form onSubmit={onSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
-                Email Address
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Email
               </label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors">
-                  <Mail className="w-5 h-5" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#0072bc] transition-colors">
+                  <Mail className="w-[18px] h-[18px]" />
                 </div>
                 <input
                   type="email"
@@ -87,18 +118,18 @@ const Login = () => {
                   onChange={onChange}
                   required
                   placeholder="admin@rakshithac.com"
-                  className="w-full bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 rounded-2xl pl-12 pr-4 py-4 text-slate-700 font-medium transition-all outline-none"
+                  className="w-full bg-transparent border-b border-slate-100 focus:border-[#0072bc] py-3 pl-8 text-slate-900 text-sm font-semibold transition-all outline-none"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
-                Password
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Key
               </label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors">
-                  <Lock className="w-5 h-5" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#0072bc] transition-colors">
+                  <Lock className="w-[18px] h-[18px]" />
                 </div>
                 <input
                   type="password"
@@ -107,7 +138,7 @@ const Login = () => {
                   onChange={onChange}
                   required
                   placeholder="••••••••"
-                  className="w-full bg-slate-50 border-2 border-transparent focus:bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 rounded-2xl pl-12 pr-4 py-4 text-slate-700 font-medium transition-all outline-none"
+                  className="w-full bg-transparent border-b border-slate-100 focus:border-[#0072bc] py-3 pl-8 text-slate-900 text-sm font-semibold transition-all outline-none"
                 />
               </div>
             </div>
@@ -115,27 +146,35 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-brand hover:bg-brand-hover text-white font-bold py-4 rounded-2xl shadow-lg shadow-brand/30 hover:shadow-brand/50 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg mt-4"
+              className="w-full bg-[#0072bc] hover:bg-[#005fa3] text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-50 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6 group"
             >
               {isLoading ? (
-                <Loader2 className="w-6 h-6 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  <LogIn className="w-6 h-6" />
-                  Sign In
+                  <span className="text-[14px]">Access Dashboard</span>
+                  <LogIn className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </>
               )}
             </button>
           </form>
-        </div>
 
-        {/* Footer */}
-        <p className="text-center text-slate-400 text-sm mt-8 font-medium">
-          &copy; {new Date().getFullYear()} Rakshith Air Conditioners Admin Hub
-        </p>
+          <div className="mt-10 pt-6 border-t border-slate-50 text-center md:text-left">
+            <p className="text-slate-300 text-[9px] font-bold uppercase tracking-widest">
+              &copy; {new Date().getFullYear()} Rakshith Admin Hub
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
 export default Login
+
+
+
+
+
+
+
