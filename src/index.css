@@ -1,11 +1,59 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #0072bc;
-  --color-brand-hover: #005fa3;
+  --color-brand: #00AEEF;
+  --color-brand-hover: #0087B8;
+  --color-accent: #FBB040;
+  --color-surface: #f8fafc;
+  --color-border: #e2e8f0;
+  
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-body {
-  background-color: #f8fafc;
-  color: #0f172a;
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-surface text-slate-900 font-sans;
+    font-size: 13px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .admin-card {
+    @apply bg-white border border-slate-200 rounded-lg shadow-sm transition-all duration-200;
+  }
+  
+  .admin-card-header {
+    @apply px-4 py-3 border-b border-slate-100 flex items-center justify-between;
+  }
+  
+  .admin-card-body {
+    @apply p-4;
+  }
+
+  .compact-btn {
+    @apply px-3 py-1.5 text-xs font-semibold rounded-md transition-all active:scale-95;
+  }
+}
+
+/* Custom Scrollbar for Admin */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400;
 }

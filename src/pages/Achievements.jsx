@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Plus, Award, MoreVertical, Edit, Trash2, X, Upload } from 'lucide-react'
+import { Plus, Award, Edit, Trash2, X, Upload, Calendar, ChevronRight } from 'lucide-react'
 import { fetchAchievements, createAchievement, deleteAchievementAsync, updateAchievementAsync } from '../store/slices/achievementsSlice'
 import { getImageUrl } from '../utils/imageHandler'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import { motion, AnimatePresence } from 'framer-motion'
+
 const Achievements = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -13,6 +15,7 @@ const Achievements = () => {
   const [previewImage, setPreviewImage] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  
   const { items: achievements, loading, error } = useSelector(state => state.achievements)
   const dispatch = useDispatch()
 
@@ -22,24 +25,22 @@ const Achievements = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     const data = new FormData()
     Object.keys(formData).forEach(key => data.append(key, formData[key]))
-    if (selectedFile) {
-      data.append('image', selectedFile)
-    } else if (editingId && achievements.find(a => (a._id || a.id) === editingId)?.image) {
-      data.append('image', achievements.find(a => (a._id || a.id) === editingId).image)
-    }
+    if (selectedFile) data.append('image', selectedFile)
 
-    if (editingId) {
-      await dispatch(updateAchievementAsync({ id: editingId, data })).unwrap()
-      toast.success('Achievement updated successfully!')
-    } else {
-      await dispatch(createAchievement(data)).unwrap()
-      toast.success('Achievement created successfully!')
+    try {
+      if (editingId) {
+        await dispatch(updateAchievementAsync({ id: editingId, data })).unwrap()
+        toast.success('Milestone updated!')
+      } else {
+        await dispatch(createAchievement(data)).unwrap()
+        toast.success('Milestone added!')
+      }
+      closeModal()
+    } catch (err) {
+      toast.error(err.message || 'Failed to save')
     }
-
-    closeModal()
   }
 
   const handleEdit = (achievement) => {
@@ -51,7 +52,6 @@ const Achievements = () => {
       status: achievement.status
     })
     setPreviewImage(achievement.image)
-    dispatch(fetchAchievements())
     setIsFormOpen(true)
   }
 
@@ -68,20 +68,19 @@ const Achievements = () => {
     if (file) {
       setSelectedFile(file)
       const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreviewImage(reader.result)
-      }
+      reader.onloadend = () => setPreviewImage(reader.result)
       reader.readAsDataURL(file)
     }
   }
+
   const handleDelete = async () => {
     if (!deleteTarget) return
     setDeleteLoading(true)
     try {
       await dispatch(deleteAchievementAsync(deleteTarget)).unwrap()
-      toast.success('Achievement deleted successfully!')
+      toast.success('Removed successfully!')
     } catch {
-      toast.error('Failed to delete achievement')
+      toast.error('Failed to remove')
     } finally {
       setDeleteLoading(false)
       setDeleteTarget(null)
@@ -89,157 +88,169 @@ const Achievements = () => {
   }
 
   return (
-    <>
-      <div className="space-y-6">
-        <DeleteConfirmModal
-          isOpen={!!deleteTarget}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={handleDelete}
-          loading={deleteLoading}
-          title="Delete Achievement"
-          description="Are you sure you want to delete this achievement? This action cannot be undone."
-        />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Corporate Achievements</h1>
-            <p className="text-sm text-slate-500 mt-1">Manage company milestones, awards, and certifications.</p>
-          </div>
-          <button onClick={() => setIsFormOpen(true)} className="inline-flex items-center justify-center gap-2 bg-brand hover:bg-brand-hover text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm shadow-brand/20">
-            <Plus className="w-4 h-4" />
-            Add Achievement
-          </button>
-        </div>
+    <div className="space-y-5">
+      <DeleteConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        loading={deleteLoading}
+        title="Remove Milestone"
+        description="This will permanently delete this achievement."
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {achievements.map((item) => (
-            <div key={item.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col group hover:border-brand/30 hover:shadow-md transition-all">
-              <div className="h-40 bg-slate-50 border-b border-slate-100 flex items-center justify-center relative overflow-hidden">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Achievements</h1>
+          <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">Corporate Milestones & Awards</p>
+        </div>
+        <button
+          onClick={() => setIsFormOpen(true)}
+          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Milestone
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {loading ? (
+          <div className="col-span-full py-20 text-center text-slate-300 animate-pulse font-bold text-xs uppercase tracking-widest">
+            Syncing Milestones...
+          </div>
+        ) : achievements.length === 0 ? (
+          <div className="col-span-full py-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest border-2 border-dashed border-slate-100 rounded-xl">
+            No milestones recorded.
+          </div>
+        ) : (
+          achievements.map((item) => (
+            <div key={item._id} className="group bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col hover:border-brand/40 hover:shadow-md transition-all">
+              <div className="h-32 bg-slate-50 border-b border-slate-100 flex items-center justify-center relative overflow-hidden shrink-0">
                 {item.image ? (
                   <img src={getImageUrl(item.image)} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent"></div>
-                    <div className="w-16 h-16 bg-white rounded-full border border-slate-200 flex items-center justify-center shadow-sm relative z-10 group-hover:scale-110 transition-transform duration-500">
-                      <Award className="w-8 h-8 text-brand" />
-                    </div>
-                  </>
+                  <div className="w-10 h-10 bg-white rounded-lg border border-slate-200 flex items-center justify-center shadow-sm relative z-10 group-hover:scale-110 transition-transform">
+                    <Award className="w-5 h-5 text-brand" />
+                  </div>
                 )}
-                {/* <div className="absolute top-3 right-3">
-                  <button className="p-1.5 text-slate-400 hover:text-slate-700 bg-white/80 rounded-md backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity border border-slate-200 shadow-sm">
-                    <MoreVertical className="w-4 h-4" />
+                <div className="absolute top-2 right-2 flex gap-1">
+                  <button onClick={() => handleEdit(item)} className="p-1.5 bg-amber-500 text-white rounded-md shadow-sm border border-amber-600 transition-all hover:bg-amber-600">
+                    <Edit className="w-3 h-3" />
                   </button>
-                </div> */}
+                  <button onClick={() => setDeleteTarget(item._id)} className="p-1.5 bg-rose-500 text-white rounded-md shadow-sm border border-rose-600 transition-all hover:bg-rose-600">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
-              <div className="p-5 flex-1 flex flex-col">
+              
+              <div className="p-3.5 flex-1 flex flex-col">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand bg-blue-50 px-2 py-0.5 rounded text-center">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-brand bg-brand/5 px-1.5 py-0.5 rounded">
                     {item.year}
                   </span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
-                    ${item.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}
-                  `}>
+                  <span className={`text-[9px] font-extrabold uppercase tracking-wider ${item.status === 'Active' ? 'text-emerald-500' : 'text-slate-400'}`}>
                     {item.status}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 mb-2 leading-tight">
+                <h3 className="text-[13px] font-bold text-slate-900 mb-1 leading-tight line-clamp-1">
                   {item.title}
                 </h3>
-                <p className="text-sm text-slate-500 flex-1">
+                <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
                   {item.description}
                 </p>
-
-                <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
-                  <button
-                    onClick={() => handleEdit(item)}
-                    title="Edit Milestone"
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-amber-600 bg-amber-50 border border-amber-100/50 rounded-xl hover:bg-amber-600 hover:text-white transition-all duration-300 shadow-sm"
-                  >
-                    <Edit className="w-3.5 h-3.5" /> Edit
-                  </button>
-                  <button
-                    onClick={() => setDeleteTarget(item._id || item.id)}
-                    title="Remove Milestone"
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-rose-600 bg-rose-50 border border-rose-100/50 rounded-xl hover:bg-rose-600 hover:text-white transition-all duration-300 shadow-sm"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" /> Remove
-                  </button>
-                </div>
               </div>
             </div>
-          ))}
+          ))
+        )}
 
-          {/* Empty state / Add new card */}
-          <div onClick={() => setIsFormOpen(true)} className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center p-8 min-h-[280px] hover:bg-slate-100 hover:border-brand/40 transition-colors cursor-pointer group">
-            <div className="w-12 h-12 bg-white rounded-full border border-slate-200 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-sm">
-              <Plus className="w-6 h-6 text-slate-400 group-hover:text-brand" />
-            </div>
-            <h3 className="text-sm font-semibold text-slate-900 mb-1">Add New Milestone</h3>
-            <p className="text-xs text-slate-500 max-w-[200px]">Upload certificates or awards to display on the main website.</p>
+        <button 
+          onClick={() => setIsFormOpen(true)}
+          className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center p-6 min-h-[160px] hover:bg-slate-100 hover:border-brand/30 transition-all group"
+        >
+          <div className="w-8 h-8 bg-white rounded-full border border-slate-200 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-sm">
+            <Plus className="w-4 h-4 text-slate-400 group-hover:text-brand" />
           </div>
-        </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Add Milestone</p>
+        </button>
       </div>
 
-      {/* Add/Edit Achievement Modal */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg flex flex-col overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">{editingId ? 'Edit Achievement' : 'Add Achievement'}</h2>
-              <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form id="achievementForm" onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Title</label>
-                <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Best HVAC Contractor 2024" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-brand" required />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Year</label>
-                  <input type="text" value={formData.year} onChange={e => setFormData({ ...formData, year: e.target.value })} placeholder="e.g. 2024" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-brand" required />
+      <AnimatePresence>
+        {isFormOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
+            >
+              <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
+                    <Award className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-slate-900 leading-tight">{editingId ? 'Edit Milestone' : 'New Milestone'}</h2>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Achievement Details</p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
-                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-brand">
-                    <option value="Active">Active</option>
-                    <option value="Draft">Draft</option>
-                  </select>
-                </div>
+                <button onClick={closeModal} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Description</label>
-                <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Achievement details..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-brand resize-none"></textarea>
-              </div>
-              <div className="space-y-1 max-w-xs">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-                  Image
-                  <span className="text-[10px] text-slate-400 font-normal">Recommended: 800 x 800 px</span>
-                </label>
-                <label className="border-2 border-dashed border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:bg-slate-50 cursor-pointer relative overflow-hidden h-32">
-                  <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" className="hidden" onChange={onImageChange} />
-                  {previewImage ? (
-                    <img src={getImageUrl(previewImage)} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <>
-                      <Upload className="w-6 h-6 text-slate-300 mb-1" />
-                      <p className="text-[10px] text-slate-500">Upload Award/Cert Image</p>
-                    </>
-                  )}
-                </label>
-              </div>
-            </form>
 
-            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-3">
-              <button onClick={closeModal} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
-              <button type="submit" form="achievementForm" className="px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand-hover rounded-lg transition-colors">Save Achievement</button>
-            </div>
+              <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Milestone Title</label>
+                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Best Contractor 2024" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Year</label>
+                    <input type="text" value={formData.year} onChange={e => setFormData({ ...formData, year: e.target.value })} placeholder="2024" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
+                    <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all">
+                      <option value="Active">Active</option>
+                      <option value="Draft">Draft</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Overview</label>
+                  <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all resize-none"></textarea>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Thumbnail</label>
+                  <label className="relative block h-28 border-2 border-dashed border-slate-100 rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all">
+                    <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
+                    {previewImage ? (
+                      <img src={getImageUrl(previewImage)} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                        <Upload className="w-5 h-5 mb-1" />
+                        <span className="text-[9px] font-bold uppercase tracking-wider">Upload Image</span>
+                      </div>
+                    )}
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button type="button" onClick={closeModal} className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
+                    {editingId ? 'Update Milestone' : 'Publish Milestone'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      )}
-      {/* </div> */}
-    </>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
 
