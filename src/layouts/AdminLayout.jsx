@@ -35,7 +35,7 @@ const AdminLayout = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex">
+    <div className="min-h-screen bg-surface flex">
       {/* Logout Modal */}
       <AnimatePresence>
         {showLogoutModal && (

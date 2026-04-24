@@ -1,11 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #00AEEF;
-  --color-brand-hover: #0087B8;
+  --color-brand: #0072bc;
+  --color-brand-hover: #005aab;
   --color-accent: #FBB040;
-  --color-surface: #f8fafc;
-  --color-border: #e2e8f0;
+  --color-surface: #f4f9fc;
+  --color-border: #e8eff5;
+
+  /* Overriding Slate with Logo Navy Colors to remove dull black */
+  --color-slate-900: #002f54;
+  --color-slate-800: #004070;
+  --color-slate-700: #00528c;
+  --color-slate-600: #296a99;
+  --color-slate-500: #4a80a8;
+  --color-slate-400: #7a9ebf;
+  --color-slate-300: #a9bed4;
+  --color-slate-200: #cddceb;
+  --color-slate-100: #e8eff5;
+  --color-slate-50:  #f5f8fa;
   
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }

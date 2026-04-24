@@ -168,7 +168,7 @@ const ContactMessages = () => {
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             {pagination.total} Messages
           </div>
-          
+
           <div className="flex items-center gap-1.5">
             <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={pagination.page <= 1} className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
               <ChevronLeft className="w-4 h-4" />
@@ -191,7 +191,7 @@ const ContactMessages = () => {
       <AnimatePresence>
         {selectedContact && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}

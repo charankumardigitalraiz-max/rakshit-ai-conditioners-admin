@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { login, reset } from '../store/slices/authSlice'
-import { LogIn, Mail, Lock, Loader2, AlertCircle, Shield, Globe, Activity } from 'lucide-react'
+import { LogIn, Mail, Lock, Loader2, AlertCircle, Shield, Globe, Activity, EyeOff, Eye } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 const Login = () => {
@@ -15,7 +15,7 @@ const Login = () => {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
+  const [passwordVisible, setPasswordVisible] = useState(false)
   const { user, isLoading, isError, isSuccess, message } = useSelector(
     (state) => state.auth
   )
@@ -47,7 +47,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafc] p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-surface p-4 relative overflow-hidden">
       {/* Subtle Background Accent */}
       <div className="absolute top-0 right-0 w-full h-full opacity-[0.05] pointer-events-none">
         <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -56,7 +56,7 @@ const Login = () => {
       </div>
 
       <div className="w-full max-w-[820px] flex flex-col md:flex-row bg-white rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.06)] border border-slate-100 z-10">
-        
+
         {/* ── LEFT PANEL: BRANDING ── */}
         <div className="w-full md:w-[35%] bg-[#0072bc] p-8 md:p-10 flex flex-col justify-between relative overflow-hidden">
           <div className="relative z-10">
@@ -132,7 +132,7 @@ const Login = () => {
                   <Lock className="w-[18px] h-[18px]" />
                 </div>
                 <input
-                  type="password"
+                  type={passwordVisible ? 'text' : 'password'}
                   id="password"
                   value={password}
                   onChange={onChange}
@@ -140,6 +140,13 @@ const Login = () => {
                   placeholder="••••••••"
                   className="w-full bg-transparent border-b border-slate-100 focus:border-[#0072bc] py-3 pl-8 text-slate-900 text-sm font-semibold transition-all outline-none"
                 />
+                <button
+                  type="button"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 focus:text-[#0072bc] transition-colors"
+                >
+                  {passwordVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
