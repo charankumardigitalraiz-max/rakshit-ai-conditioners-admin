@@ -97,12 +97,12 @@ const AdminLayout = () => {
                   key={item.path}
                   to={item.path}
                   className={`flex items-center justify-between group px-3 py-2 rounded-md text-[13px] font-medium transition-all ${isActive
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-brand text-white shadow-sm'
+                    : 'text-slate-500 hover:bg-blue-50 hover:text-brand'
                     }`}
                 >
                   <div className="flex items-center gap-3">
-                    <item.icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                    <item.icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-brand'}`} />
                     <span>{item.label}</span>
                   </div>
                   {isActive && <ChevronRight className="w-3 h-3 opacity-50" />}
@@ -142,7 +142,7 @@ const AdminLayout = () => {
                   {user?.role || 'Superuser'}
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-bold text-xs">
+              <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-xs">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
               </div>
             </div>
