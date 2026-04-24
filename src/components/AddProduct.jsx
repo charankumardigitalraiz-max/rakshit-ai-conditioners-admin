@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ArrowLeft, Upload, Plus, Trash2, CheckCircle2 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
+import { toast } from 'react-hot-toast'
 import { createProduct, updateProductAsync } from '../store/slices/productsSlice'
 import { productsAPI } from '../services/api'
 import { getImageUrl } from '../utils/imageHandler'
@@ -125,6 +126,7 @@ const AddProduct = () => {
         }
       }).catch(err => {
         console.error("Failed to fetch product:", err);
+        toast.error("Failed to load product details" + err.message);
       });
     }
   }, [id, isEditing]);
@@ -201,7 +203,6 @@ const AddProduct = () => {
       if (isEditing) {
         await dispatch(updateProductAsync({ id: id, data })).unwrap()
         toast.success('Product updated successfully!')
-        navigate('/products')
       } else {
         await dispatch(createProduct(data)).unwrap()
         toast.success('Product created successfully!')
