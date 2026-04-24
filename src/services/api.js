@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Central API configuration
 const API = axios.create({
-  // baseURL: 'https://rakshit-ai-conditioners-backend.onrender.com/api/admin',
-  baseURL: 'http://localhost:9000/api/admin',
+  baseURL: 'https://rakshit-ai-conditioners-backend.onrender.com/api/admin',
+  // baseURL: 'http://localhost:9000/api/admin',
 });
 
 // Add a request interceptor to attach the auth token
