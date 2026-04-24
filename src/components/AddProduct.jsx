@@ -24,7 +24,7 @@ const AddProduct = () => {
     name: '', category: 'Split AC', series: '', refrigerant: 'R32', stockStatus: 'Active',
     shortDescription: '',
     powerSupply: '1 Phase, 230 V, 50 Hz', condenserCoil: '100% Copper', operatingTemp: 'Stable up to 52°C',
-    standardCharges: '', outdoorStand: '', freeServices: '2 free services in the first year',
+    standardCharges: '', outdoorStand: '', timeline: '2 - 3 days', freeServices: '2 free services in the first year',
     compressorWarranty: '10 Years', pcbWarranty: '5 Years', unitWideWarranty: '1 Year',
     detailedFeatures: ''
   })
@@ -88,6 +88,7 @@ const AddProduct = () => {
           operatingTemp: product.technicalSpecs?.operatingTemp || 'Stable up to 52°C',
           standardCharges: product.installation?.standardCharges || '',
           outdoorStand: product.installation?.outdoorStand || '',
+          timeline: product.installation?.timeline || '2 - 3 days',
           freeServices: product.installation?.freeServices || '2 free services in the first year',
           compressorWarranty: product.warranty?.compressor || '10 Years',
           pcbWarranty: product.warranty?.pcb || '5 Years',
@@ -185,6 +186,7 @@ const AddProduct = () => {
       data.append('installation', JSON.stringify({
         standardCharges: formState.standardCharges,
         outdoorStand: formState.outdoorStand,
+        timeline: formState.timeline,
         freeServices: formState.freeServices,
         includes: includes.filter(i => i.trim() !== ''),
         excludes: excludes.filter(ex => ex.trim() !== ''),
@@ -199,6 +201,7 @@ const AddProduct = () => {
       if (isEditing) {
         await dispatch(updateProductAsync({ id: id, data })).unwrap()
         toast.success('Product updated successfully!')
+        navigate('/products')
       } else {
         await dispatch(createProduct(data)).unwrap()
         toast.success('Product created successfully!')
@@ -395,7 +398,7 @@ const AddProduct = () => {
             {/* 5. Installation Scope */}
             <section>
               <h3 className="text-sm font-bold text-[#0072bc] uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">5. Installation & Service Scope</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Standard Charges</label>
                   <input type="text" value={formState.standardCharges} onChange={e => setField('standardCharges', e.target.value)} placeholder="₹1,500" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
@@ -403,6 +406,10 @@ const AddProduct = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Outdoor Stand Cost</label>
                   <input type="text" value={formState.outdoorStand} onChange={e => setField('outdoorStand', e.target.value)} placeholder="₹750" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700">Timeline</label>
+                  <input type="text" value={formState.timeline} onChange={e => setField('timeline', e.target.value)} placeholder="e.g. 2 - 3 days" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Free Services</label>
