@@ -205,7 +205,8 @@ const AddProduct = () => {
       }
       navigate('/products')
     } catch (err) {
-      toast.error(`Failed to save product: ${err.message || err}`)
+      const errorMessage = Array.isArray(err) ? err.join(', ') : (err?.message || err || 'Unknown error');
+      toast.error(`Failed to save product: ${errorMessage}`);
     }
   }
 
@@ -477,7 +478,7 @@ const AddProduct = () => {
                         }
                       }}
                     />
-                    
+
                     {previewImage || formState.image ? (
                       <img src={getImageUrl(previewImage || formState.image)} alt="Preview" className="absolute inset-0 w-full h-full object-contain p-2" />
                     ) : (

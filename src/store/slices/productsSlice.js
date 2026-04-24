@@ -7,7 +7,7 @@ export const fetchProducts = createAsyncThunk('products/fetchAll', async (params
     const res = await productsAPI.getAll(params);
     return res;
   } catch (err) {
-    return thunkAPI.rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
   }
 });
 
@@ -16,7 +16,7 @@ export const createProduct = createAsyncThunk('products/create', async (data, th
     const res = await productsAPI.create(data);
     return res.data;
   } catch (err) {
-    return thunkAPI.rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
   }
 });
 
@@ -25,7 +25,7 @@ export const deleteProductAsync = createAsyncThunk('products/delete', async (id,
     await productsAPI.delete(id);
     return id;
   } catch (err) {
-    return thunkAPI.rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
   }
 });
 
@@ -34,7 +34,7 @@ export const updateProductAsync = createAsyncThunk('products/update', async ({ i
     const res = await productsAPI.update(id, data);
     return res.data;
   } catch (err) {
-    return thunkAPI.rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
   }
 });
 
@@ -43,7 +43,7 @@ export const fetchProductById = createAsyncThunk('products/fetchOne', async (id,
     const res = await productsAPI.getOne(id);
     return res.data;
   } catch (err) {
-    return thunkAPI.rejectWithValue(err.message);
+    return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
   }
 });
 // ─── Slice ───────────────────────────────────────────────────

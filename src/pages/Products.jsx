@@ -202,7 +202,7 @@ const Products = () => {
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             {pagination.total} Records Found
           </div>
-          
+
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => handlePageChange(pagination.page - 1)}
@@ -211,7 +211,7 @@ const Products = () => {
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            
+
             <div className="flex items-center gap-1">
               {[...Array(Math.min(pagination.pages, 5))].map((_, i) => {
                 const p = i + 1;
@@ -219,11 +219,10 @@ const Products = () => {
                   <button
                     key={p}
                     onClick={() => handlePageChange(p)}
-                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${
-                      pagination.page === p 
-                        ? 'bg-slate-900 text-white shadow-sm' 
+                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p
+                        ? 'bg-slate-900 text-white shadow-sm'
                         : 'text-slate-500 hover:bg-slate-100'
-                    }`}
+                      }`}
                   >
                     {p}
                   </button>

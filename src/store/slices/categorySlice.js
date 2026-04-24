@@ -7,7 +7,7 @@ export const fetchCategories = createAsyncThunk('categories/fetchAll', async (pa
         const res = await categoriesAPI.getAll(params);
         return res;
     } catch (err) {
-        return thunkAPI.rejectWithValue(err.message);
+        return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
     }
 });
 
@@ -16,7 +16,7 @@ export const createCategory = createAsyncThunk('categories/create', async (data,
         const res = await categoriesAPI.create(data);
         return res.data;
     } catch (err) {
-        return thunkAPI.rejectWithValue(err.message);
+        return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
     }
 });
 
@@ -25,7 +25,7 @@ export const deleteCategoryAsync = createAsyncThunk('categories/delete', async (
         await categoriesAPI.delete(id);
         return id;
     } catch (err) {
-        return thunkAPI.rejectWithValue(err.message);
+        return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
     }
 });
 
@@ -34,7 +34,7 @@ export const updateCategoryAsync = createAsyncThunk('categories/update', async (
         const res = await categoriesAPI.update(id, data);
         return res.data;
     } catch (err) {
-        return thunkAPI.rejectWithValue(err.message);
+        return thunkAPI.rejectWithValue(err.response?.data?.error || err.response?.data?.message || err.message);
     }
 });
 
