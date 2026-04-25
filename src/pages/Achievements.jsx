@@ -213,15 +213,15 @@ const Achievements = () => {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
                     <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all">
                       <option value="Active">Active</option>
-                      <option value="Draft">Draft</option>
+                      <option value="Inactive">Inactive</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                {/* <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Overview</label>
                   <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all resize-none"></textarea>
-                </div>
+                </div> */}
 
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Thumbnail</label>

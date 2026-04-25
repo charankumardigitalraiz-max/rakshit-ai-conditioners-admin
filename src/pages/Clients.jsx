@@ -14,6 +14,7 @@ const Clients = () => {
   const [editingId, setEditingId] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
+  const [showValidation, setShowValidation] = useState(false)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -49,6 +50,13 @@ const Clients = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setShowValidation(true)
+
+    if (!formData.name || !formData.location || !formData.category || !previewImage) {
+      toast.error('All fields are mandatory')
+      return
+    }
+
     const data = new FormData()
     Object.keys(formData).forEach(key => data.append(key, formData[key]))
     if (selectedFile) data.append('image', selectedFile)
@@ -79,6 +87,7 @@ const Clients = () => {
     setEditingId(null)
     setSelectedFile(null)
     setPreviewImage(null)
+    setShowValidation(false)
   }
 
   const handleEdit = (client) => {
@@ -91,6 +100,7 @@ const Clients = () => {
     // dispatch(fetchCategories({ page: currentPage, limit: 12, search: debouncedSearch }))
     setEditingId(client._id || client.id)
     setPreviewImage(getImageUrl(client.image))
+    setShowValidation(false)
     setIsFormOpen(true)
   }
 
@@ -313,24 +323,51 @@ const Clients = () => {
 
               <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Partner Name</label>
-                  <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Omega Hospital" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
+                  <div className="flex items-center justify-between">
+                    <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.name ? 'text-rose-500' : 'text-slate-400'}`}>
+                      Partner Name
+                    </label>
+                    {showValidation && !formData.name && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g. Omega Hospital"
+                    className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.name ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  {/* <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Capacity (HP)</label>
-                    <input type="text" value={formData.hp} onChange={e => setFormData({ ...formData, hp: e.target.value })} placeholder="e.g. 1100" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" />
-                  </div> */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Location</label>
-                    <input type="text" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} placeholder="e.g. Hyderabad" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" />
+                    <div className="flex items-center justify-between">
+                      <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.location ? 'text-rose-500' : 'text-slate-400'}`}>
+                        Location
+                      </label>
+                      {showValidation && !formData.location && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+                    </div>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={e => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="e.g. Hyderabad"
+                      className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.location ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
-                  <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all">
+                  <div className="flex items-center justify-between">
+                    <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.category ? 'text-rose-500' : 'text-slate-400'}`}>
+                      Category
+                    </label>
+                    {showValidation && !formData.category && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+                  </div>
+                  <select
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                    className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.category ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
+                  >
                     <option value="">Select category</option>
                     {categories.map(cat => (
                       <option key={cat._id} value={cat._id}>{cat.name}</option>
@@ -339,8 +376,13 @@ const Clients = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Brand Logo</label>
-                  <label className="relative block h-28 border-2 border-dashed border-slate-100 rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all">
+                  <div className="flex items-center justify-between">
+                    <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && (!previewImage && !selectedFile) ? 'text-rose-500' : 'text-slate-400'}`}>
+                      Brand Logo
+                    </label>
+                    {showValidation && (!previewImage && !selectedFile) && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+                  </div>
+                  <label className={`relative block h-28 border-2 border-dashed rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all ${showValidation && (!previewImage && !selectedFile) ? 'border-rose-200 bg-rose-50/20' : 'border-slate-100'}`}>
                     <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
                     {previewImage ? (
                       <img src={previewImage} alt="Preview" className="w-full h-full object-contain p-2" />

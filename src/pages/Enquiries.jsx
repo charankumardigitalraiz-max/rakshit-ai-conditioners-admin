@@ -107,8 +107,6 @@ const Enquiries = () => {
             >
               <option value="All">All Status</option>
               <option value="New">New</option>
-              <option value="Contacted">Contacted</option>
-              <option value="Resolved">Resolved</option>
               <option value="Replied">Replied</option>
               <option value="Closed">Closed</option>
             </select>
@@ -263,9 +261,9 @@ const Enquiries = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-0.5">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Contact Details</p>
-                    <p className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                    {/* <p className="text-xs font-bold text-slate-900 flex items-center gap-2">
                       <Mail className="w-3 h-3 text-slate-300" /> {selectedEnquiry.email || 'No Email'}
-                    </p>
+                    </p> */}
                     <p className="text-xs font-bold text-brand flex items-center gap-2">
                       <Phone className="w-3 h-3 text-slate-300" /> {selectedEnquiry.phone}
                     </p>

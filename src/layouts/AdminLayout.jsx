@@ -78,9 +78,9 @@ const AdminLayout = () => {
       <aside className="w-60 bg-white border-r border-slate-200 flex flex-col fixed h-full z-10">
         <div className="h-16 flex items-center px-5 border-b border-slate-100 bg-white">
           <Link to="/" className="flex items-center">
-            <img 
-              src="/Rakshith logo web png.png" 
-              alt="Rakshith Air Conditioners" 
+            <img
+              src="/Rakshith logo web png.png"
+              alt="Rakshith Air Conditioners"
               className="h-10 w-auto object-contain"
             />
           </Link>
@@ -133,19 +133,19 @@ const AdminLayout = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 pl-4 border-l border-slate-100">
+            <Link to="/profile" className="flex items-center gap-3 pl-4 border-l border-slate-100 hover:opacity-80 transition-all cursor-pointer group">
               <div className="text-right hidden sm:block">
-                <div className="text-[12px] font-bold text-slate-900 leading-none mb-0.5">
+                <div className="text-[12px] font-bold text-slate-900 leading-none mb-0.5 group-hover:text-brand transition-colors">
                   {user?.name || 'Administrator'}
                 </div>
                 <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
                   {user?.role || 'Superuser'}
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-xs">
+              <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-xs shadow-sm group-hover:shadow transition-all">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 

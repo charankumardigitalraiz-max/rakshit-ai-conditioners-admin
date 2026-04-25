@@ -30,11 +30,9 @@ const Categories = () => {
 
     useEffect(() => {
         dispatch(fetchCategories({
-            page: currentPage,
-            limit: 12,
             search: debouncedSearch,
         }))
-    }, [dispatch, currentPage, debouncedSearch])
+    }, [dispatch, debouncedSearch])
 
     const validateForm = () => {
         const validationErrors = {}
@@ -58,14 +56,14 @@ const Categories = () => {
             if (editingId) {
                 await dispatch(updateCategoryAsync({ id: editingId, data })).unwrap()
                 toast.success('Category updated!')
-                dispatch(fetchCategories({ page: currentPage, limit: 12, search: debouncedSearch }))
+                dispatch(fetchCategories({ search: debouncedSearch }))
             } else {
                 await dispatch(createCategory(data)).unwrap()
                 toast.success('Category created!')
                 if (currentPage !== 1) {
                     setCurrentPage(1)
                 } else {
-                    dispatch(fetchCategories({ page: 1, limit: 12, search: debouncedSearch }))
+                    dispatch(fetchCategories({ search: debouncedSearch }))
                 }
             }
             setIsFormOpen(false)
@@ -100,8 +98,6 @@ const Categories = () => {
             toast.success('Category deleted!')
             // Force refetch to update pagination and count
             dispatch(fetchCategories({
-                page: currentPage,
-                limit: 12,
                 search: debouncedSearch,
             }))
         } catch {
@@ -225,7 +221,7 @@ const Categories = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/20">
+                {/* <div className="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/20">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         {pagination.total} Categories
                     </div>
@@ -256,7 +252,7 @@ const Categories = () => {
                             <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>
-                </div>
+                </div> */}
             </div>
 
             {/* Form Modal */}
