@@ -80,8 +80,8 @@ const Products = () => {
     }))
   }, [dispatch, currentPage, debouncedSearch, categoryFilter, statusFilter])
 
-  const categories = ['All', 'Room AC', 'Commercial AC', 'Central AC', 'Ventilation']
-  const statuses = ['All', 'Active', 'Inactive']
+  const categories = ['All', 'Room AC', 'Split AC', 'Commercial AC', 'Central AC', 'Ventilation']
+  const statuses = ['All', 'Active', 'Out of Stock', 'Inactive']
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.pages) {

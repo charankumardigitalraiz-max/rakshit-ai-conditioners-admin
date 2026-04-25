@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { ArrowLeft, Upload, Plus, Trash2, CheckCircle2 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-hot-toast'
 import { createProduct, updateProductAsync } from '../store/slices/productsSlice'
+import { fetchCategories } from '../store/slices/categorySlice'
 import { productsAPI } from '../services/api'
 import { getImageUrl } from '../utils/imageHandler'
 
@@ -12,6 +13,8 @@ const AddProduct = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
   const isEditing = !!id
+
+  const { items: allCategories } = useSelector(state => state.categories)
 
   const [variants, setVariants] = useState([
     { id: 1, capacity: '1.5 Ton', sku: 'FTKL50TV16', price: '45000', coolingFull: '5.0 kW', coolingHalf: '2.5 kW', powerFull: '1752 W', powerHalf: '615 W', annualPower: '1045 kWh', iseer: '3.70' }
@@ -74,12 +77,16 @@ const AddProduct = () => {
   }
 
   React.useEffect(() => {
+    dispatch(fetchCategories({ page: 1, limit: 100 }))
+  }, [dispatch])
+
+  React.useEffect(() => {
     if (isEditing) {
       productsAPI.getOne(id).then(res => {
         const product = res.data;
         setFormState({
           name: product.name || '',
-          category: product.category || 'Room AC',
+          category: product.category?.name || product.category || 'Room AC',
           series: product.series || '',
           refrigerant: product.refrigerant || 'R32',
           stockStatus: product.stockStatus || 'Active',
@@ -260,15 +267,25 @@ const AddProduct = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2 sm:col-span-2">
                   <label className="text-sm font-medium text-slate-700">Product Name</label>
-                  <input type="text" value={formState.name} onChange={e => setField('name', e.target.value)} placeholder="e.g. Daikin Inverter 3 Star Split AC" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all" required />
+                  <input type="text" value={formState.name} onChange={e => setField('name', e.target.value)} placeholder="e.g. Daikin 1.5 Ton Inverter AC" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all" required />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Category</label>
-                  <select value={formState.category} onChange={e => setField('category', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all">
+                  <select
+                    value={formState.category}
+                    onChange={e => setField('category', e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all"
+                    required
+                  >
+                    <option value="" disabled>Select Category</option>
                     <option value="Room AC">Room AC</option>
+                    <option value="Split AC">Split AC</option>
                     <option value="Commercial AC">Commercial AC</option>
                     <option value="Central AC">Central AC</option>
                     <option value="Ventilation">Ventilation</option>
+                    {allCategories?.filter(cat => !['Room AC', 'Split AC', 'Commercial AC', 'Central AC', 'Ventilation'].includes(cat.name)).map(cat => (
+                      <option key={cat._id} value={cat.name}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -279,13 +296,15 @@ const AddProduct = () => {
                   <label className="text-sm font-medium text-slate-700">Refrigerant</label>
                   <input type="text" value={formState.refrigerant} onChange={e => setField('refrigerant', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all" />
                 </div>
-                {/* <div className="space-y-2">
+                <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Stock Status</label>
                   <select value={formState.stockStatus} onChange={e => setField('stockStatus', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all">
                     <option value="Active">Active</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Out of Stock">Out of Stock</option>
                     <option value="Inactive">Inactive</option>
                   </select>
-                </div> */}
+                </div>
                 <div className="space-y-2 sm:col-span-2">
                   <label className="text-sm font-medium text-slate-700">Short Description (Quote)</label>
                   <textarea value={formState.shortDescription} onChange={e => setField('shortDescription', e.target.value)} rows="2" placeholder="e.g. Neo swing technology for high efficiency..." className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all resize-none"></textarea>
