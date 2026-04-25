@@ -14,7 +14,7 @@ const AddProduct = () => {
   const { id } = useParams()
   const isEditing = !!id
 
-  const { items: allCategories } = useSelector(state => state.categories)
+  // const { items: allCategories } = useSelector(state => state.categories)
 
   const [variants, setVariants] = useState([
     { id: 1, capacity: '1.5 Ton', sku: 'FTKL50TV16', price: '45000', coolingFull: '5.0 kW', coolingHalf: '2.5 kW', powerFull: '1752 W', powerHalf: '615 W', annualPower: '1045 kWh', iseer: '3.70' }
@@ -283,9 +283,6 @@ const AddProduct = () => {
                     <option value="Commercial AC">Commercial AC</option>
                     <option value="Central AC">Central AC</option>
                     <option value="Ventilation">Ventilation</option>
-                    {allCategories?.filter(cat => !['Room AC', 'Split AC', 'Commercial AC', 'Central AC', 'Ventilation'].includes(cat.name)).map(cat => (
-                      <option key={cat._id} value={cat.name}>{cat.name}</option>
-                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
