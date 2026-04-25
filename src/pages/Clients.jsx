@@ -57,9 +57,15 @@ const Clients = () => {
       if (editingId) {
         await dispatch(updateClientAsync({ id: editingId, data })).unwrap()
         toast.success('Client updated!')
+        dispatch(fetchClients({ page: currentPage, limit: 12, search: debouncedSearch, category }))
       } else {
         await dispatch(createClient(data)).unwrap()
         toast.success('Client added!')
+        if (currentPage !== 1) {
+          setCurrentPage(1)
+        } else {
+          dispatch(fetchClients({ page: 1, limit: 12, search: debouncedSearch, category }))
+        }
       }
       setIsFormOpen(false)
       resetForm()
@@ -103,6 +109,7 @@ const Clients = () => {
     try {
       await dispatch(deleteClientAsync(deleteTarget)).unwrap()
       toast.success('Client deleted!')
+      dispatch(fetchClients({ page: currentPage, limit: 12, search: debouncedSearch, category }))
     } catch {
       toast.error('Failed to delete')
     } finally {
@@ -110,6 +117,26 @@ const Clients = () => {
       setDeleteTarget(null)
     }
   }
+
+  const getPageNumbers = () => {
+    const totalPages = pagination?.pages || 0;
+    const currentPage = pagination?.page || 1;
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = start + maxVisible - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
 
   return (
     <div className="space-y-5">
@@ -172,7 +199,7 @@ const Clients = () => {
               <tr>
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client Name</th>
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</th>
-                <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Capacity (HP)</th>
+                {/* <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Capacity (HP)</th> */}
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</th>
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
@@ -202,12 +229,12 @@ const Clients = () => {
                         {client?.category?.name || 'N/A'}
                       </span>
                     </td>
-                    <td className="px-5 py-2.5 text-center">
+                    {/* <td className="px-5 py-2.5 text-center">
                       <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold">
                         <Zap className="w-3 h-3" />
                         {client.hp || 'N/A'}
                       </div>
-                    </td>
+                    </td> */}
                     <td className="px-5 py-2.5 text-slate-500">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="w-3 h-3 text-slate-300" />
@@ -241,9 +268,13 @@ const Clients = () => {
               <ChevronLeft className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-1">
-              {[...Array(Math.min(pagination.pages, 5))].map((_, i) => (
-                <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === i + 1 ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>
-                  {i + 1}
+              {getPageNumbers().map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setCurrentPage(p)}
+                  className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100'}`}
+                >
+                  {p}
                 </button>
               ))}
             </div>

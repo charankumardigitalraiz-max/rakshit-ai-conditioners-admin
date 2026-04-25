@@ -22,7 +22,7 @@ const AddProduct = () => {
   const [excludes, setExcludes] = useState(['Civil work', 'Extra pipe beyond 3 meters'])
 
   const [formState, setFormState] = useState({
-    name: '', category: 'Split AC', series: '', refrigerant: 'R32', stockStatus: 'Active',
+    name: '', category: 'Room AC', series: '', refrigerant: 'R32', stockStatus: 'Active',
     shortDescription: '',
     powerSupply: '1 Phase, 230 V, 50 Hz', condenserCoil: '100% Copper', operatingTemp: 'Stable up to 52°C',
     standardCharges: '', outdoorStand: '', timeline: '2 - 3 days', freeServices: '2 free services in the first year',
@@ -279,13 +279,13 @@ const AddProduct = () => {
                   <label className="text-sm font-medium text-slate-700">Refrigerant</label>
                   <input type="text" value={formState.refrigerant} onChange={e => setField('refrigerant', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all" />
                 </div>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">Stock Status</label>
                   <select value={formState.stockStatus} onChange={e => setField('stockStatus', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all">
                     <option value="Active">Active</option>
-                    <option value="Draft">Draft</option>
+                    <option value="Inactive">Inactive</option>
                   </select>
-                </div>
+                </div> */}
                 <div className="space-y-2 sm:col-span-2">
                   <label className="text-sm font-medium text-slate-700">Short Description (Quote)</label>
                   <textarea value={formState.shortDescription} onChange={e => setField('shortDescription', e.target.value)} rows="2" placeholder="e.g. Neo swing technology for high efficiency..." className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all resize-none"></textarea>

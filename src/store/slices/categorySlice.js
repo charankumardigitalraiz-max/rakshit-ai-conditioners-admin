@@ -45,7 +45,7 @@ const categorySlice = createSlice({
         items: [],
         pagination: {
             page: 1,
-            limit: 10,
+            limit: 12,
             total: 0,
             pages: 0
         },
@@ -58,8 +58,8 @@ const categorySlice = createSlice({
             .addCase(fetchCategories.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchCategories.fulfilled, (state, action) => {
                 state.loading = false;
-                state.items = action.payload.data;
-                state.pagination = action.payload.pagination;
+                state.items = action.payload.data || [];
+                state.pagination = action.payload.pagination || state.pagination;
             })
             .addCase(fetchCategories.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
             .addCase(createCategory.fulfilled, (state, action) => { state.items.push(action.payload); })

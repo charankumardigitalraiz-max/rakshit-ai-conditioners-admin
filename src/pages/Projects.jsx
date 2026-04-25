@@ -74,9 +74,15 @@ const Projects = () => {
       if (editingId) {
         await dispatch(updateProjectAsync({ id: editingId, data })).unwrap()
         toast.success('Project updated!')
+        dispatch(fetchProjects({ page: currentPage, limit: 12, search: debouncedSearch, status: statusFilter !== 'All' ? statusFilter : null, category: categoryFilter !== 'All' ? categoryFilter : null }))
       } else {
         await dispatch(createProject(data)).unwrap()
         toast.success('Project created!')
+        if (currentPage !== 1) {
+          setCurrentPage(1)
+        } else {
+          dispatch(fetchProjects({ page: 1, limit: 12, search: debouncedSearch, status: statusFilter !== 'All' ? statusFilter : null, category: categoryFilter !== 'All' ? categoryFilter : null }))
+        }
       }
       setIsFormOpen(false)
       resetForm()
@@ -127,6 +133,7 @@ const Projects = () => {
     try {
       await dispatch(deleteProjectAsync(deleteTarget)).unwrap()
       toast.success('Project deleted!')
+      dispatch(fetchProjects({ page: currentPage, limit: 12, search: debouncedSearch, status: statusFilter !== 'All' ? statusFilter : null, category: categoryFilter !== 'All' ? categoryFilter : null }))
     } catch {
       toast.error('Failed to delete')
     } finally {
@@ -134,6 +141,26 @@ const Projects = () => {
       setDeleteTarget(null)
     }
   }
+
+  const getPageNumbers = () => {
+    const totalPages = pagination?.pages || 0;
+    const currentPage = pagination?.page || 1;
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = start + maxVisible - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
 
   return (
     <div className="space-y-5">
@@ -287,21 +314,18 @@ const Projects = () => {
             </button>
 
             <div className="flex items-center gap-1">
-              {[...Array(Math.min(pagination.pages, 5))].map((_, i) => {
-                const p = i + 1;
-                return (
-                  <button
-                    key={p}
-                    onClick={() => setCurrentPage(p)}
-                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p
-                      ? 'bg-slate-900 text-white shadow-sm'
-                      : 'text-slate-500 hover:bg-slate-100'
-                      }`}
-                  >
-                    {p}
-                  </button>
-                )
-              })}
+              {getPageNumbers().map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setCurrentPage(p)}
+                  className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-500 hover:bg-slate-100'
+                    }`}
+                >
+                  {p}
+                </button>
+              ))}
             </div>
 
             <button

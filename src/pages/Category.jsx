@@ -58,9 +58,15 @@ const Categories = () => {
             if (editingId) {
                 await dispatch(updateCategoryAsync({ id: editingId, data })).unwrap()
                 toast.success('Category updated!')
+                dispatch(fetchCategories({ page: currentPage, limit: 12, search: debouncedSearch }))
             } else {
                 await dispatch(createCategory(data)).unwrap()
                 toast.success('Category created!')
+                if (currentPage !== 1) {
+                    setCurrentPage(1)
+                } else {
+                    dispatch(fetchCategories({ page: 1, limit: 12, search: debouncedSearch }))
+                }
             }
             setIsFormOpen(false)
             resetForm()
@@ -91,6 +97,12 @@ const Categories = () => {
         try {
             await dispatch(deleteCategoryAsync(deleteTarget)).unwrap()
             toast.success('Category deleted!')
+            // Force refetch to update pagination and count
+            dispatch(fetchCategories({
+                page: currentPage,
+                limit: 12,
+                search: debouncedSearch,
+            }))
         } catch {
             toast.error('Failed to delete')
         } finally {
@@ -98,6 +110,26 @@ const Categories = () => {
             setDeleteTarget(null)
         }
     }
+
+    const getPageNumbers = () => {
+        const totalPages = pagination?.pages || 0;
+        const currentPage = pagination?.page || 1;
+        const maxVisible = 5;
+
+        if (totalPages <= maxVisible) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+
+        let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let end = start + maxVisible - 1;
+
+        if (end > totalPages) {
+            end = totalPages;
+            start = Math.max(1, end - maxVisible + 1);
+        }
+
+        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    };
 
     return (
         <div className="space-y-5">
@@ -197,17 +229,29 @@ const Categories = () => {
                         {pagination.total} Categories
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={pagination.page <= 1} className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
+                        <button 
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
+                            disabled={pagination.page <= 1} 
+                            className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all"
+                        >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
                         <div className="flex items-center gap-1">
-                            {[...Array(Math.min(pagination.pages, 5))].map((_, i) => (
-                                <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === i + 1 ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>
-                                    {i + 1}
+                            {getPageNumbers().map((p) => (
+                                <button 
+                                    key={p} 
+                                    onClick={() => setCurrentPage(p)} 
+                                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100'}`}
+                                >
+                                    {p}
                                 </button>
                             ))}
                         </div>
-                        <button onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))} disabled={pagination.page >= pagination.pages} className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
+                        <button 
+                            onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))} 
+                            disabled={pagination.page >= pagination.pages} 
+                            className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all"
+                        >
                             <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>

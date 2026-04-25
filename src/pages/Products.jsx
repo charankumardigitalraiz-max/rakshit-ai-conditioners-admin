@@ -23,10 +23,43 @@ const Products = () => {
   const handleDelete = async () => {
     if (!deleteTarget) return
     setDeleteLoading(true)
-    await dispatch(deleteProductAsync(deleteTarget))
-    setDeleteLoading(false)
-    setDeleteTarget(null)
+    try {
+      await dispatch(deleteProductAsync(deleteTarget)).unwrap()
+      toast.success('Product deleted!')
+      dispatch(fetchProducts({
+        page: currentPage,
+        limit: 12,
+        search: debouncedSearch,
+        category: categoryFilter,
+        stockStatus: statusFilter
+      }))
+    } catch {
+      toast.error('Failed to delete')
+    } finally {
+      setDeleteLoading(false)
+      setDeleteTarget(null)
+    }
   }
+
+  const getPageNumbers = () => {
+    const totalPages = pagination?.pages || 0;
+    const currentPage = pagination?.page || 1;
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = start + maxVisible - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -47,7 +80,7 @@ const Products = () => {
   }, [dispatch, currentPage, debouncedSearch, categoryFilter, statusFilter])
 
   const categories = ['All', 'Room AC', 'Commercial AC', 'Central AC', 'Ventilation']
-  const statuses = ['All', 'Active', 'Draft', 'Out of Stock']
+  const statuses = ['All', 'Active', 'Inactive']
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.pages) {
@@ -213,21 +246,18 @@ const Products = () => {
             </button>
 
             <div className="flex items-center gap-1">
-              {[...Array(Math.min(pagination.pages, 5))].map((_, i) => {
-                const p = i + 1;
-                return (
-                  <button
-                    key={p}
-                    onClick={() => handlePageChange(p)}
-                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p
-                        ? 'bg-slate-900 text-white shadow-sm'
-                        : 'text-slate-500 hover:bg-slate-100'
-                      }`}
-                  >
-                    {p}
-                  </button>
-                )
-              })}
+              {getPageNumbers().map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handlePageChange(p)}
+                  className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'text-slate-500 hover:bg-slate-100'
+                    }`}
+                >
+                  {p}
+                </button>
+              ))}
             </div>
 
             <button

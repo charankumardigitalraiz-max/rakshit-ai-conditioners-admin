@@ -234,12 +234,17 @@ const ContactMessages = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Subject</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Name</p>
                   <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 font-bold text-slate-900 text-[13px]">
-                    {selectedContact.subject}
+                    {selectedContact.name}
                   </div>
                 </div>
-
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Interest</p>
+                  <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 font-bold text-slate-900 text-[13px]">
+                    {selectedContact.interest || "N/A"}
+                  </div>
+                </div>
                 <div className="space-y-1.5">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Message</p>
                   <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-100 text-[13px] text-slate-700 italic leading-relaxed">
