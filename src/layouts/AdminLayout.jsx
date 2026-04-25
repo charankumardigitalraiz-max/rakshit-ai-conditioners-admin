@@ -75,7 +75,7 @@ const AdminLayout = () => {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside className="w-60 bg-white border-r border-slate-200 flex flex-col fixed h-full z-10">
+      <aside className="w-60 bg-white border-r border-slate-200 flex flex-col fixed h-full z-30">
         <div className="h-16 flex items-center px-5 border-b border-slate-100 bg-white">
           <Link to="/" className="flex items-center">
             <img
@@ -125,7 +125,7 @@ const AdminLayout = () => {
 
       {/* Main Content */}
       <div className="flex-1 ml-60 flex flex-col min-h-screen">
-        <header className="h-14 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-10">
+        <header className="h-14 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
             <span>Rakshith Air Condition</span>
             <ChevronRight className="w-3 h-3" />

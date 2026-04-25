@@ -232,7 +232,7 @@ const Projects = () => {
         {/* Table */}
         <div className="overflow-x-auto overflow-y-auto max-h-[60vh] custom-scrollbar">
           <table className="w-full text-left text-[12px] whitespace-nowrap">
-            <thead className="bg-white sticky top-0 z-10 border-b border-slate-100">
+            <thead className="bg-white sticky top-0 z-1 border-b border-slate-100">
               <tr>
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project</th>
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</th>
@@ -403,6 +403,10 @@ const Projects = () => {
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duration</label>
                     <input type="text" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} placeholder="3 Months" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hp</label>
+                    <input type="text" value={formData.hp} onChange={e => setFormData({ ...formData, hp: e.target.value })} placeholder="3 Months" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" />
                   </div>
                 </div>
 

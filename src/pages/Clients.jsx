@@ -206,7 +206,7 @@ const Clients = () => {
         {/* Table */}
         <div className="overflow-x-auto overflow-y-auto max-h-[60vh] custom-scrollbar">
           <table className="w-full text-left text-[12px] whitespace-nowrap">
-            <thead className="bg-white sticky top-0 z-10 border-b border-slate-100">
+            <thead className="bg-white sticky top-0 z-1 border-b border-slate-100">
               <tr>
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client Name</th>
                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</th>
