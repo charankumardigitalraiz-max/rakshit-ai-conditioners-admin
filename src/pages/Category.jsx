@@ -291,10 +291,10 @@ const Categories = () => {
                                     {errors.name && <p className="text-[9px] text-rose-500 font-bold mt-1">{errors.name}</p>}
                                 </div>
 
-                                <div className="space-y-1">
+                                {/* <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Description</label>
                                     <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all resize-none"></textarea>
-                                </div>
+                                </div> */}
 
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
