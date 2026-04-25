@@ -176,7 +176,7 @@ const Categories = () => {
                         <thead className="bg-white border-b border-slate-100">
                             <tr>
                                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                                <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</th>
+                                {/* <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</th> */}
                                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Status</th>
                                 <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
                             </tr>
@@ -197,9 +197,9 @@ const Categories = () => {
                                                 <span className="font-bold text-slate-900">{cat.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-2.5 max-w-xs truncate text-slate-500">
+                                        {/* <td className="px-5 py-2.5 max-w-xs truncate text-slate-500">
                                             {cat.description || 'No description provided'}
-                                        </td>
+                                        </td> */}
                                         <td className="px-5 py-2.5 text-center">
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider
                                                 ${cat.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'}
