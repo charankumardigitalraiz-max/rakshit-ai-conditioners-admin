@@ -15,7 +15,7 @@ const Achievements = () => {
   const [previewImage, setPreviewImage] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
-  
+
   const { items: achievements, loading, error } = useSelector(state => state.achievements)
   const dispatch = useDispatch()
 
@@ -79,6 +79,7 @@ const Achievements = () => {
     try {
       await dispatch(deleteAchievementAsync(deleteTarget)).unwrap()
       toast.success('Removed successfully!')
+      dispatch(fetchAchievements())
     } catch {
       toast.error('Failed to remove')
     } finally {
@@ -141,7 +142,7 @@ const Achievements = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="p-3.5 flex-1 flex flex-col">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[9px] font-extrabold uppercase tracking-wider text-brand bg-brand/5 px-1.5 py-0.5 rounded">
@@ -162,7 +163,7 @@ const Achievements = () => {
           ))
         )}
 
-        <button 
+        <button
           onClick={() => setIsFormOpen(true)}
           className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-center p-6 min-h-[160px] hover:bg-slate-100 hover:border-brand/30 transition-all group"
         >
@@ -176,7 +177,7 @@ const Achievements = () => {
       <AnimatePresence>
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -202,7 +203,7 @@ const Achievements = () => {
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Milestone Title</label>
                   <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Best Contractor 2024" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Year</label>

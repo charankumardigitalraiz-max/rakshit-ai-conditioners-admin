@@ -41,6 +41,7 @@ const Enquiries = () => {
     try {
       await dispatch(updateEnquiryStatusAsync({ id, status })).unwrap()
       toast.success('Status updated!')
+      dispatch(fetchEnquiries({ page: currentPage, limit: 12, search: debouncedSearch, status: statusFilter }))
       if (selectedEnquiry?._id === id) {
         setSelectedEnquiry(prev => ({ ...prev, status }))
       }
@@ -56,6 +57,7 @@ const Enquiries = () => {
       await dispatch(deleteEnquiryAsync(deleteTarget)).unwrap()
       toast.success('Enquiry deleted!')
       setSelectedEnquiry(null)
+      dispatch(fetchEnquiries({ page: currentPage, limit: 12, search: debouncedSearch, status: statusFilter }))
     } catch {
       toast.error('Failed to delete')
     } finally {
@@ -192,7 +194,7 @@ const Enquiries = () => {
           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             {pagination.total} Total Leads
           </div>
-          
+
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -201,7 +203,7 @@ const Enquiries = () => {
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            
+
             <div className="flex items-center gap-1">
               {[...Array(Math.min(pagination.pages, 5))].map((_, i) => {
                 const p = i + 1;
@@ -209,11 +211,10 @@ const Enquiries = () => {
                   <button
                     key={p}
                     onClick={() => setCurrentPage(p)}
-                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${
-                      pagination.page === p 
-                        ? 'bg-slate-900 text-white shadow-sm' 
-                        : 'text-slate-500 hover:bg-slate-100'
-                    }`}
+                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'text-slate-500 hover:bg-slate-100'
+                      }`}
                   >
                     {p}
                   </button>
@@ -236,7 +237,7 @@ const Enquiries = () => {
       <AnimatePresence>
         {selectedEnquiry && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}

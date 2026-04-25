@@ -33,6 +33,7 @@ const Products = () => {
         category: categoryFilter,
         stockStatus: statusFilter
       }))
+
     } catch {
       toast.error('Failed to delete')
     } finally {

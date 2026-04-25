@@ -88,6 +88,7 @@ const Categories = () => {
             status: category.status || 'active'
         })
         setEditingId(category._id || category.id)
+        // dispatch(fetchCategories({ page: currentPage, limit: 12, search: debouncedSearch }))
         setIsFormOpen(true)
     }
 
@@ -229,27 +230,27 @@ const Categories = () => {
                         {pagination.total} Categories
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <button 
-                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
-                            disabled={pagination.page <= 1} 
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={pagination.page <= 1}
                             className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
                         <div className="flex items-center gap-1">
                             {getPageNumbers().map((p) => (
-                                <button 
-                                    key={p} 
-                                    onClick={() => setCurrentPage(p)} 
+                                <button
+                                    key={p}
+                                    onClick={() => setCurrentPage(p)}
                                     className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100'}`}
                                 >
                                     {p}
                                 </button>
                             ))}
                         </div>
-                        <button 
-                            onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))} 
-                            disabled={pagination.page >= pagination.pages} 
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))}
+                            disabled={pagination.page >= pagination.pages}
                             className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all"
                         >
                             <ChevronRight className="w-4 h-4" />
@@ -262,7 +263,7 @@ const Categories = () => {
             <AnimatePresence>
                 {isFormOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}

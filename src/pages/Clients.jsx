@@ -88,6 +88,7 @@ const Clients = () => {
       location: client.location || '',
       category: client.category?._id || client.category || ''
     })
+    // dispatch(fetchCategories({ page: currentPage, limit: 12, search: debouncedSearch }))
     setEditingId(client._id || client.id)
     setPreviewImage(getImageUrl(client.image))
     setIsFormOpen(true)

@@ -38,6 +38,7 @@ const Testimonials = () => {
       toast.success('Testimonial added!')
       setIsFormOpen(false)
       resetForm()
+      dispatch(fetchTestimonials({ page: currentPage, limit: 12 }))
     } catch (err) {
       toast.error(err.message || 'Failed to save')
     }
@@ -65,6 +66,7 @@ const Testimonials = () => {
     try {
       await dispatch(deleteTestimonialAsync(deleteTarget)).unwrap()
       toast.success('Removed')
+      dispatch(fetchTestimonials({ page: currentPage, limit: 12 }))
     } catch {
       toast.error('Failed')
     } finally {
@@ -158,7 +160,7 @@ const Testimonials = () => {
       <AnimatePresence>
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
