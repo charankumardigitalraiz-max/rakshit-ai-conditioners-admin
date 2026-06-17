@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Save, Plus, Trash2, Upload } from 'lucide-react'
 import { fetchServiceApproach, updateServiceApproach } from '../store/slices/serviceApproachSlice'
-import { getImageUrl } from '../utils/imageHandler'
+import { getImageUrl, normalizeImagePath } from '../utils/imageHandler'
 import { toast } from 'react-hot-toast'
 
 const emptyPillar = () => ({ title: '', description: '', image: '', order: 0 })
@@ -35,7 +35,7 @@ const ImageUpload = ({ value, file, onPathChange, onFileChange }) => {
         <input
           type="text"
           value={value || ''}
-          onChange={(e) => onPathChange(e.target.value)}
+          onChange={(e) => onPathChange(normalizeImagePath(e.target.value))}
           placeholder="Image path, e.g. /service/image.png"
           className={inputCls}
         />
@@ -74,9 +74,9 @@ const ServiceApproach = () => {
       setForm({
         hero: { ...data.hero },
         methodology: { ...data.methodology },
-        pillars: (data.pillars || []).map((p, i) => ({ ...p, order: p.order ?? i + 1 })),
+        pillars: (data.pillars || []).map((p, i) => ({ ...p, image: normalizeImagePath(p.image || ''), order: p.order ?? i + 1 })),
         roadmap: { ...data.roadmap },
-        steps: (data.steps || []).map((s, i) => ({ ...s, order: s.order ?? i + 1 })),
+        steps: (data.steps || []).map((s, i) => ({ ...s, image: normalizeImagePath(s.image || ''), order: s.order ?? i + 1 })),
         status: data.status || 'Active',
       })
     }

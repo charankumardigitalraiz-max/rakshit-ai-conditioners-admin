@@ -406,7 +406,7 @@ const Clients = () => {
                   <label className={`relative block h-28 border-2 border-dashed rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all ${showValidation && (!previewImage && !selectedFile) ? 'border-rose-200 bg-rose-50/20' : 'border-slate-100'}`}>
                     <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
                     {previewImage ? (
-                      <img src={previewImage} alt="Preview" className="w-full h-full object-contain p-2" />
+                      <img src={getImageUrl(previewImage)} alt="Preview" className="w-full h-full object-contain p-2" />
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-slate-300">
                         <Upload className="w-5 h-5 mb-1" />

@@ -194,7 +194,7 @@ const Testimonials = () => {
                   <label htmlFor="testimonial-upload" className="absolute inset-0 cursor-pointer z-10"></label>
 
                   {previewImage ? (
-                    <img src={previewImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={getImageUrl(previewImage)} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
                     <div className="space-y-2 p-4">
                       <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center mx-auto shadow-sm text-slate-300">

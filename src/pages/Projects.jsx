@@ -58,12 +58,26 @@ const Projects = () => {
 
   const validateForm = () => {
     const newErrors = {}
-    if (!formData.title.trim()) newErrors.title = 'Project title is required'
-    if (!formData.category) newErrors.category = 'Category is required'
-    if (!selectedFile && !previewImage) newErrors.image = 'Project image is required'
+    if (!formData.title.trim()) newErrors.title = 'Please fill this field'
+    if (!formData.category) newErrors.category = 'Please select a category'
+    if (!selectedFile && !previewImage) newErrors.image = 'Please upload a project image'
     setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) {
+      toast.error('Please fill all required fields')
+    }
     return Object.keys(newErrors).length === 0
   }
+
+  const clearError = (field) => {
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const fieldClass = (field) =>
+    `w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${
+      errors[field] ? 'border-rose-300 focus:border-rose-400' : 'border-slate-200 focus:border-brand'
+    }`
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -125,6 +139,7 @@ const Projects = () => {
     const file = e.target.files[0]
     if (file) {
       setSelectedFile(file)
+      clearError('image')
       const reader = new FileReader()
       reader.onloadend = () => setPreviewImage(reader.result)
       reader.readAsDataURL(file)
@@ -369,23 +384,41 @@ const Projects = () => {
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Project Details</p>
                   </div>
                 </div>
-                <button onClick={() => setIsFormOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
+                <button onClick={() => { setIsFormOpen(false); setErrors({}) }} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+              <form onSubmit={handleSubmit} noValidate className="p-5 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Name</label>
-                    <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Wipro Corporate Office" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Name <span className="text-rose-500">*</span></label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => {
+                        setFormData({ ...formData, title: e.target.value })
+                        clearError('title')
+                      }}
+                      placeholder="e.g. Wipro Corporate Office"
+                      className={fieldClass('title')}
+                    />
+                    {errors.title && <p className="text-[10px] text-rose-500 font-semibold">{errors.title}</p>}
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
-                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Category <span className="text-rose-500">*</span></label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => {
+                        setFormData({ ...formData, category: e.target.value })
+                        clearError('category')
+                      }}
+                      className={fieldClass('category')}
+                    >
                       <option value="">Select category</option>
                       {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
                     </select>
+                    {errors.category && <p className="text-[10px] text-rose-500 font-semibold">{errors.category}</p>}
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
@@ -440,11 +473,11 @@ const Projects = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Image</label>
-                  <label className="relative block h-32 border-2 border-dashed border-slate-100 rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Image <span className="text-rose-500">*</span></label>
+                  <label className={`relative block h-32 border-2 border-dashed rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all ${errors.image ? 'border-rose-300 bg-rose-50/30' : 'border-slate-100'}`}>
                     <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
                     {previewImage ? (
-                      <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
+                      <img src={getImageUrl(previewImage)} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-slate-300">
                         <Upload className="w-6 h-6 mb-1" />
@@ -452,10 +485,11 @@ const Projects = () => {
                       </div>
                     )}
                   </label>
+                  {errors.image && <p className="text-[10px] text-rose-500 font-semibold">{errors.image}</p>}
                 </div>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
-                  <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
+                  <button type="button" onClick={() => { setIsFormOpen(false); setErrors({}) }} className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
                     Cancel
                   </button>
                   <button type="submit" className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
