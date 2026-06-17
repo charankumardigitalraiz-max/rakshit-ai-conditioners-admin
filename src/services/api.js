@@ -128,6 +128,45 @@ export const testimonialsAPI = {
   delete: (id) => API.delete(`/testimonials/${id}`),
 };
 
+// ─── Branches & Contact Channels ───────────────────────────
+export const branchesAPI = {
+  getAll: (params) => API.get('/branches', { params }),
+  getOne: (id) => API.get(`/branches/${id}`),
+  create: (data) => {
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    return API.post('/branches', data, config);
+  },
+  update: (id, data) => {
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    return API.put(`/branches/${id}`, data, config);
+  },
+  delete: (id) => API.delete(`/branches/${id}`),
+};
+
+export const contactChannelsAPI = {
+  getAll: () => API.get('/contact-channels'),
+  update: (data) => API.put('/contact-channels', data),
+  updateOne: (id, data) => API.put(`/contact-channels/${id}`, data),
+};
+
+// ─── Service Locations ───────────────────────────────────────
+export const serviceLocationsAPI = {
+  getAll: (params) => API.get('/service-locations', { params }),
+  getOne: (id) => API.get(`/service-locations/${id}`),
+  create: (data) => API.post('/service-locations', data),
+  update: (id, data) => API.put(`/service-locations/${id}`, data),
+  delete: (id) => API.delete(`/service-locations/${id}`),
+};
+
+// ─── Error Codes ─────────────────────────────────────────────
+export const errorCodesAPI = {
+  getAll: (params) => API.get('/error-codes', { params }),
+  getOne: (id) => API.get(`/error-codes/${id}`),
+  create: (data) => API.post('/error-codes', data),
+  update: (id, data) => API.put(`/error-codes/${id}`, data),
+  delete: (id) => API.delete(`/error-codes/${id}`),
+};
+
 // ─── Dashboard ───────────────────────────────────────────────
 export const dashboardAPI = {
   getCounts: () => API.get('/dashboard/counts'),

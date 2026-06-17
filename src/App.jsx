@@ -17,6 +17,9 @@ import Login from './pages/Login'
 import Clients from './pages/Clients'
 import Category from './pages/Category';
 import Testimonials from './pages/Testimonials'
+import Branches from './pages/Branches'
+import ServiceLocations from './pages/ServiceLocations'
+import ErrorCodes from './pages/ErrorCodes'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -65,6 +68,9 @@ function App() {
           <Route path="clients" element={<Clients />} />
           <Route path="category" element={<Category />} />
           <Route path="testimonials" element={<Testimonials />} />
+          <Route path="branches" element={<Branches />} />
+          <Route path="service-locations" element={<ServiceLocations />} />
+          <Route path="error-codes" element={<ErrorCodes />} />
           <Route path="profile" element={<Profile />} />
           <Route path="*" element={<div className="p-8 text-center text-slate-500">Page under construction</div>} />
         </Route>

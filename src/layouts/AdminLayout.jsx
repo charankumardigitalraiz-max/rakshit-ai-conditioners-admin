@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Package, Briefcase, Award, LogOut, MessageSquare, Mail, Users, Quote, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Package, Briefcase, Award, LogOut, MessageSquare, Mail, Users, Quote, ChevronRight, MapPin, Wrench, AlertTriangle } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../store/slices/authSlice'
@@ -29,6 +29,9 @@ const AdminLayout = () => {
     { path: '/clients', label: 'Clients', icon: Users },
     { path: '/testimonials', label: 'Testimonials', icon: Quote },
     { path: '/achievements', label: 'Achievements', icon: Award },
+    { path: '/branches', label: 'Branches', icon: MapPin },
+    { path: '/service-locations', label: 'Service Locations', icon: Wrench },
+    { path: '/error-codes', label: 'Error Codes', icon: AlertTriangle },
     { divider: true },
     { path: '/enquiries', label: 'Leads', icon: MessageSquare },
     { path: '/contacts', label: 'Messages', icon: Mail },

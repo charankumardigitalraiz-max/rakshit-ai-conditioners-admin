@@ -60,7 +60,7 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="admin-page">
       {/* Breadcrumb & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm">
@@ -72,9 +72,9 @@ const ProductDetails = () => {
         </div>
         <button
           onClick={() => navigate(`/products/edit/${product._id}`)}
-          className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm shadow-brand/20"
+          className="admin-btn-primary"
         >
-          <Edit className="w-4 h-4" /> Edit Product
+          <Edit className="w-3.5 h-3.5" /> Edit Product
         </button>
       </div>
 
@@ -128,7 +128,7 @@ const ProductDetails = () => {
         <div className="lg:col-span-2 space-y-4">
           {/* Header */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 text-brand">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{product.name}</h1>
+            <h1 className="admin-page-title">{product.name}</h1>
             {product.shortDescription && (
               <p className="text-sm text-slate-500 mt-2 leading-relaxed">{product.shortDescription}</p>
             )}
@@ -211,7 +211,7 @@ const ProductDetails = () => {
       </div>
 
       {/* Bottom Sections: Full Width */}
-      <div className="space-y-6">
+      <div className="admin-page">
         {/* Features */}
         {product.features?.length > 0 && (
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">

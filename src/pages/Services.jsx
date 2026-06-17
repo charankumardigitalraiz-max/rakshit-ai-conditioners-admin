@@ -1,27 +1,38 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Plus, Award, Edit, Trash2, X, Upload, Calendar, ChevronRight } from 'lucide-react'
-import { fetchAchievements, createAchievement, deleteAchievementAsync, updateAchievementAsync } from '../store/slices/achievementsSlice'
+import { Plus, Wrench, Edit, Trash2, X, Upload, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { fetchServices, createService, deleteServiceAsync, updateServiceAsync } from '../store/slices/servicesSlice'
 import { getImageUrl } from '../utils/imageHandler'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const Achievements = () => {
+const Services = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [formData, setFormData] = useState({ title: '', year: '', description: '', status: 'Active' })
+  const [formData, setFormData] = useState({ title: '', description: '', status: 'Active' })
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const { items: achievements, loading, error } = useSelector(state => state.achievements)
+  const { items: services, loading, pagination } = useSelector(state => state.services)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(fetchAchievements())
-  }, [dispatch])
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+      setCurrentPage(1)
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  useEffect(() => {
+    dispatch(fetchServices({ page: currentPage, limit: 12, search: debouncedSearch }))
+  }, [dispatch, currentPage, debouncedSearch])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -31,11 +42,17 @@ const Achievements = () => {
 
     try {
       if (editingId) {
-        await dispatch(updateAchievementAsync({ id: editingId, data })).unwrap()
-        toast.success('Milestone updated!')
+        await dispatch(updateServiceAsync({ id: editingId, data })).unwrap()
+        toast.success('Service updated!')
+        dispatch(fetchServices({ page: currentPage, limit: 12, search: debouncedSearch }))
       } else {
-        await dispatch(createAchievement(data)).unwrap()
-        toast.success('Milestone added!')
+        await dispatch(createService(data)).unwrap()
+        toast.success('Service added!')
+        if (currentPage !== 1) {
+          setCurrentPage(1)
+        } else {
+          dispatch(fetchServices({ page: 1, limit: 12, search: debouncedSearch }))
+        }
       }
       closeModal()
     } catch (err) {
@@ -43,22 +60,21 @@ const Achievements = () => {
     }
   }
 
-  const handleEdit = (achievement) => {
-    setEditingId(achievement._id || achievement.id)
+  const handleEdit = (service) => {
+    setEditingId(service._id || service.id)
     setFormData({
-      title: achievement.title,
-      year: achievement.year,
-      description: achievement.description,
-      status: achievement.status
+      title: service.title,
+      description: service.description || '',
+      status: service.status || 'Active'
     })
-    setPreviewImage(achievement.image)
+    setPreviewImage(service.image)
     setIsFormOpen(true)
   }
 
   const closeModal = () => {
     setIsFormOpen(false)
     setEditingId(null)
-    setFormData({ title: '', year: '', description: '', status: 'Active' })
+    setFormData({ title: '', description: '', status: 'Active' })
     setSelectedFile(null)
     setPreviewImage(null)
   }
@@ -77,9 +93,9 @@ const Achievements = () => {
     if (!deleteTarget) return
     setDeleteLoading(true)
     try {
-      await dispatch(deleteAchievementAsync(deleteTarget)).unwrap()
+      await dispatch(deleteServiceAsync(deleteTarget)).unwrap()
       toast.success('Removed successfully!')
-      dispatch(fetchAchievements())
+      dispatch(fetchServices({ page: currentPage, limit: 12, search: debouncedSearch }))
     } catch {
       toast.error('Failed to remove')
     } finally {
@@ -89,48 +105,59 @@ const Achievements = () => {
   }
 
   return (
-    <div className="admin-page">
+    <div className="space-y-5">
       <DeleteConfirmModal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         loading={deleteLoading}
-        title="Remove Milestone"
-        description="This will permanently delete this achievement."
+        title="Remove Service"
+        description="This will permanently delete this service."
       />
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="admin-page-title">Achievements</h1>
-          <p className="admin-page-subtitle">Corporate Milestones & Awards</p>
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Services</h1>
+          <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">HVAC Service Offerings</p>
         </div>
         <button
           onClick={() => setIsFormOpen(true)}
-          className="admin-btn-primary"
+          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"
         >
           <Plus className="w-3.5 h-3.5" />
-          Add Milestone
+          Add Service
         </button>
       </div>
 
+      <div className="relative max-w-xs">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          placeholder="Search services..."
+          className="w-full bg-white border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-xs font-medium text-slate-900 outline-none focus:border-brand transition-all"
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {loading ? (
+        {loading && services.length === 0 ? (
           <div className="col-span-full py-20 text-center text-slate-300 animate-pulse font-bold text-xs uppercase tracking-widest">
-            Syncing Milestones...
+            Loading Services...
           </div>
-        ) : achievements.length === 0 ? (
+        ) : services.length === 0 ? (
           <div className="col-span-full py-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest border-2 border-dashed border-slate-100 rounded-xl">
-            No milestones recorded.
+            No services found.
           </div>
         ) : (
-          achievements.map((item) => (
+          services.map((item) => (
             <div key={item._id} className="group bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col hover:border-brand/40 hover:shadow-md transition-all">
               <div className="h-32 bg-slate-50 border-b border-slate-100 flex items-center justify-center relative overflow-hidden shrink-0">
                 {item.image ? (
                   <img src={getImageUrl(item.image)} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
                   <div className="w-10 h-10 bg-white rounded-lg border border-slate-200 flex items-center justify-center shadow-sm relative z-10 group-hover:scale-110 transition-transform">
-                    <Award className="w-5 h-5 text-brand" />
+                    <Wrench className="w-5 h-5 text-brand" />
                   </div>
                 )}
                 <div className="absolute top-2 right-2 flex gap-1">
@@ -145,9 +172,6 @@ const Achievements = () => {
 
               <div className="p-3.5 flex-1 flex flex-col">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-brand bg-brand/5 px-1.5 py-0.5 rounded">
-                    {item.year}
-                  </span>
                   <span className={`text-[9px] font-extrabold uppercase tracking-wider ${item.status === 'Active' ? 'text-emerald-500' : 'text-slate-400'}`}>
                     {item.status}
                   </span>
@@ -170,9 +194,32 @@ const Achievements = () => {
           <div className="w-8 h-8 bg-white rounded-full border border-slate-200 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-sm">
             <Plus className="w-4 h-4 text-slate-400 group-hover:text-brand" />
           </div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Add Milestone</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Add Service</p>
         </button>
       </div>
+
+      {pagination.pages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            {pagination.total} Services
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={pagination.page <= 1} className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-1">
+              {[...Array(Math.min(pagination.pages, 5))].map((_, i) => (
+                <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === i + 1 ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))} disabled={pagination.page >= pagination.pages} className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <AnimatePresence>
         {isFormOpen && (
@@ -186,11 +233,11 @@ const Achievements = () => {
               <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
-                    <Award className="w-4 h-4" />
+                    <Wrench className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-slate-900 leading-tight">{editingId ? 'Edit Milestone' : 'New Milestone'}</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Achievement Details</p>
+                    <h2 className="text-sm font-bold text-slate-900 leading-tight">{editingId ? 'Edit Service' : 'New Service'}</h2>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Service Details</p>
                   </div>
                 </div>
                 <button onClick={closeModal} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
@@ -200,28 +247,22 @@ const Achievements = () => {
 
               <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Milestone Title</label>
-                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Best Contractor 2024" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Title</label>
+                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Precision Room Cooling" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Year</label>
-                    <input type="text" value={formData.year} onChange={e => setFormData({ ...formData, year: e.target.value })} placeholder="2024" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
-                    <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all">
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Description</label>
+                  <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of the service..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all resize-none" />
                 </div>
 
-                {/* <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Overview</label>
-                  <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all resize-none"></textarea>
-                </div> */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
+                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
 
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Thumbnail</label>
@@ -243,7 +284,7 @@ const Achievements = () => {
                     Cancel
                   </button>
                   <button type="submit" className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
-                    {editingId ? 'Update Milestone' : 'Publish Milestone'}
+                    {editingId ? 'Update Service' : 'Publish Service'}
                   </button>
                 </div>
               </form>
@@ -255,4 +296,4 @@ const Achievements = () => {
   )
 }
 
-export default Achievements
+export default Services

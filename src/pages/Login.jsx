@@ -91,8 +91,8 @@ const Login = () => {
         {/* ── RIGHT PANEL: FORM ── */}
         <div className="w-full md:w-[65%] p-8 md:p-12 bg-white flex flex-col justify-center">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Admin Sign-in</h1>
-            <p className="text-slate-400 text-xs mt-2 font-medium">Please enter your credentials to proceed.</p>
+            <h1 className="admin-page-title">Admin Sign-in</h1>
+            <p className="admin-page-subtitle">Enter your credentials to proceed</p>
           </div>
 
           {isError && (
@@ -153,7 +153,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#0072bc] hover:bg-[#005fa3] text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-50 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6 group"
+              className="w-full admin-btn-primary py-2 justify-center mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

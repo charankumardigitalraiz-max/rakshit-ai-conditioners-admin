@@ -40,11 +40,11 @@ const Dashboard = () => {
   ]
 
   return (
-    <div className="space-y-5">
+    <div className="admin-page">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Dashboard</h1>
-          <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">Overview & Metrics</p>
+          <h1 className="admin-page-title">Dashboard</h1>
+          <p className="admin-page-subtitle">Overview & Metrics</p>
         </div>
         <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
           <Clock className="w-3 h-3" />

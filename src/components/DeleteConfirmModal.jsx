@@ -42,8 +42,8 @@ const DeleteConfirmModal = ({
 
         {/* Body */}
         <div className="px-6 pt-4 pb-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-1.5">{title}</h3>
-          <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
+          <h3 className="text-sm font-bold text-slate-900 mb-1.5">{title}</h3>
+          <p className="text-xs text-slate-500 leading-relaxed">{description}</p>
         </div>
 
         {/* Actions */}
@@ -51,14 +51,14 @@ const DeleteConfirmModal = ({
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 px-4 py-2.5 text-sm font-bold text-slate-600 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-all disabled:opacity-50"
+            className="flex-1 admin-btn-secondary border border-slate-200 bg-slate-50 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-xl transition-all shadow-lg shadow-rose-200 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 admin-btn-danger disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />

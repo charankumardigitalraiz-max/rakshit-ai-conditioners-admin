@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-hot-toast'
 import { createProduct, updateProductAsync } from '../store/slices/productsSlice'
 import { fetchCategories } from '../store/slices/categorySlice'
+import { fetchBranches } from '../store/slices/branchesSlice'
 import { productsAPI } from '../services/api'
 import { getImageUrl } from '../utils/imageHandler'
 
@@ -20,12 +21,14 @@ const AddProduct = () => {
     { id: 1, capacity: '1.5 Ton', sku: 'FTKL50TV16', price: '45000', coolingFull: '5.0 kW', coolingHalf: '2.5 kW', powerFull: '1752 W', powerHalf: '615 W', annualPower: '1045 kWh', iseer: '3.70' }
   ])
 
+  const { items: branches } = useSelector(state => state.branches)
+
   const [features, setFeatures] = useState([''])
   const [includes, setIncludes] = useState(['Standard copper pipe (3 meters)'])
   const [excludes, setExcludes] = useState(['Civil work', 'Extra pipe beyond 3 meters'])
 
   const [formState, setFormState] = useState({
-    name: '', category: 'Room AC', series: '', refrigerant: 'R32', stockStatus: 'Active',
+    name: '', category: 'Room AC', branch: '', series: '', refrigerant: 'R32', stockStatus: 'Active',
     shortDescription: '',
     powerSupply: '1 Phase, 230 V, 50 Hz', condenserCoil: '100% Copper', operatingTemp: 'Stable up to 52°C',
     standardCharges: '', outdoorStand: '', timeline: '2 - 3 days', freeServices: '2 free services in the first year',
@@ -78,6 +81,7 @@ const AddProduct = () => {
 
   React.useEffect(() => {
     dispatch(fetchCategories({ page: 1, limit: 100 }))
+    dispatch(fetchBranches({ limit: 50 }))
   }, [dispatch])
 
   React.useEffect(() => {
@@ -87,6 +91,7 @@ const AddProduct = () => {
         setFormState({
           name: product.name || '',
           category: product.category?.name || product.category || 'Room AC',
+          branch: product.branch?._id || product.branch || '',
           series: product.series || '',
           refrigerant: product.refrigerant || 'R32',
           stockStatus: product.stockStatus || 'Active',
@@ -145,6 +150,7 @@ const AddProduct = () => {
       const data = new FormData()
       data.append('name', formState.name)
       data.append('category', formState.category)
+      data.append('branch', formState.branch || '')
       data.append('series', formState.series)
       data.append('refrigerant', formState.refrigerant)
       data.append('stockStatus', formState.stockStatus)
@@ -246,14 +252,14 @@ const AddProduct = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="max-w-5xl mx-auto admin-page pb-12">
       <div className="flex items-center gap-4">
         <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{isEditing ? 'Edit Air Conditioner' : 'Add New Air Conditioner'}</h1>
-          <p className="text-sm text-slate-500 mt-1">{isEditing ? 'Update the details below.' : 'Detailed entry matching manufacturer specifications.'}</p>
+          <h1 className="admin-page-title">{isEditing ? 'Edit Air Conditioner' : 'Add New Air Conditioner'}</h1>
+          <p className="admin-page-subtitle">{isEditing ? 'Update product details' : 'Manufacturer specification entry'}</p>
         </div>
       </div>
 
@@ -263,18 +269,18 @@ const AddProduct = () => {
 
             {/* 1. Basic Information */}
             <section>
-              <h3 className="text-sm font-bold text-[#0072bc] uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">1. Basic Information</h3>
+              <h3 className="text-xs font-bold text-brand uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">1. Basic Information</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2 sm:col-span-2">
-                  <label className="text-sm font-medium text-slate-700">Product Name</label>
-                  <input type="text" value={formState.name} onChange={e => setField('name', e.target.value)} placeholder="e.g. Daikin 1.5 Ton Inverter AC" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all" required />
+                  <label className="admin-label block mb-1">Product Name</label>
+                  <input type="text" value={formState.name} onChange={e => setField('name', e.target.value)} placeholder="e.g. Daikin 1.5 Ton Inverter AC" className="w-full admin-input-form" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Category</label>
+                  <label className="admin-label block mb-1">Category</label>
                   <select
                     value={formState.category}
                     onChange={e => setField('category', e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all"
+                    className="w-full admin-input-form"
                     required
                   >
                     <option value="" disabled>Select Category</option>
@@ -285,17 +291,32 @@ const AddProduct = () => {
                     <option value="Ventilation">Ventilation</option>
                   </select>
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Series</label>
-                  <input type="text" value={formState.series} onChange={e => setField('series', e.target.value)} placeholder="e.g. FTKL / FTKM Series" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all" />
+                  <label className="admin-label block mb-1">Branch</label>
+                  <select
+                    value={formState.branch}
+                    onChange={e => setField('branch', e.target.value)}
+                    className="w-full admin-input-form"
+                  >
+                    <option value="">Select branch</option>
+                    {branches.map((branch) => (
+                      <option key={branch._id} value={branch._id}>{branch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="admin-label block mb-1">Series</label>
+                  <input type="text" value={formState.series} onChange={e => setField('series', e.target.value)} placeholder="e.g. FTKL / FTKM Series" className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Refrigerant</label>
-                  <input type="text" value={formState.refrigerant} onChange={e => setField('refrigerant', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all" />
+                  <label className="admin-label block mb-1">Refrigerant</label>
+                  <input type="text" value={formState.refrigerant} onChange={e => setField('refrigerant', e.target.value)} className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Stock Status</label>
-                  <select value={formState.stockStatus} onChange={e => setField('stockStatus', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all">
+                  <label className="admin-label block mb-1">Stock Status</label>
+                  <select value={formState.stockStatus} onChange={e => setField('stockStatus', e.target.value)} className="w-full admin-input-form">
                     <option value="Active">Active</option>
                     <option value="Draft">Draft</option>
                     <option value="Out of Stock">Out of Stock</option>
@@ -303,27 +324,27 @@ const AddProduct = () => {
                   </select>
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <label className="text-sm font-medium text-slate-700">Short Description (Quote)</label>
-                  <textarea value={formState.shortDescription} onChange={e => setField('shortDescription', e.target.value)} rows="2" placeholder="e.g. Neo swing technology for high efficiency..." className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] focus:ring-2 focus:ring-blue-100 rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all resize-none"></textarea>
+                  <label className="admin-label block mb-1">Short Description (Quote)</label>
+                  <textarea value={formState.shortDescription} onChange={e => setField('shortDescription', e.target.value)} rows="2" placeholder="e.g. Neo swing technology for high efficiency..." className="w-full admin-input-form"></textarea>
                 </div>
               </div>
             </section>
 
             {/* 2. Technical Specifications (Shared) */}
             <section>
-              <h3 className="text-sm font-bold text-[#0072bc] uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">2. Shared Technical Specifications</h3>
+              <h3 className="text-xs font-bold text-brand uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">2. Shared Technical Specifications</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Power Supply</label>
-                  <input type="text" value={formState.powerSupply} onChange={e => setField('powerSupply', e.target.value)} placeholder="e.g. 1 Phase, 230 V, 50 Hz" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Power Supply</label>
+                  <input type="text" value={formState.powerSupply} onChange={e => setField('powerSupply', e.target.value)} placeholder="e.g. 1 Phase, 230 V, 50 Hz" className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Condenser Coil</label>
-                  <input type="text" value={formState.condenserCoil} onChange={e => setField('condenserCoil', e.target.value)} className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Condenser Coil</label>
+                  <input type="text" value={formState.condenserCoil} onChange={e => setField('condenserCoil', e.target.value)} className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Operating Temp</label>
-                  <input type="text" value={formState.operatingTemp} onChange={e => setField('operatingTemp', e.target.value)} placeholder="e.g. Stable up to 52°C" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Operating Temp</label>
+                  <input type="text" value={formState.operatingTemp} onChange={e => setField('operatingTemp', e.target.value)} placeholder="e.g. Stable up to 52°C" className="w-full admin-input-form" />
                 </div>
               </div>
             </section>
@@ -331,7 +352,7 @@ const AddProduct = () => {
             {/* 3. Configurations & Variant Specs */}
             <section>
               <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-2">
-                <h3 className="text-sm font-bold text-[#0072bc] uppercase tracking-wider">3. Configurations & Variant Specifications</h3>
+                <h3 className="text-xs font-bold text-brand uppercase tracking-wider">3. Configurations & Variant Specifications</h3>
                 <button type="button" onClick={addVariant} className="text-xs font-bold text-[#0072bc] flex items-center gap-1 hover:text-blue-800 transition-colors">
                   <Plus className="w-4 h-4" /> Add Capacity Variant
                 </button>
@@ -349,29 +370,29 @@ const AddProduct = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-slate-500 uppercase">Capacity</label>
-                        <input type="text" placeholder="1.5 Ton" value={v.capacity} onChange={e => updateVariant(v.id, 'capacity', e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+                        <input type="text" placeholder="1.5 Ton" value={v.capacity} onChange={e => updateVariant(v.id, 'capacity', e.target.value)} className="w-full admin-input-form bg-white" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-slate-500 uppercase">SKU / Model</label>
-                        <input type="text" placeholder="FTKL50TV16" value={v.sku} onChange={e => updateVariant(v.id, 'sku', e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+                        <input type="text" placeholder="FTKL50TV16" value={v.sku} onChange={e => updateVariant(v.id, 'sku', e.target.value)} className="w-full admin-input-form bg-white" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-slate-500 uppercase">Dealer Price (₹)</label>
-                        <input type="number" placeholder="45000" value={v.price} onChange={e => updateVariant(v.id, 'price', e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+                        <input type="number" placeholder="45000" value={v.price} onChange={e => updateVariant(v.id, 'price', e.target.value)} className="w-full admin-input-form bg-white" />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-200 pt-4">
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-slate-500 uppercase">Cooling (Full/Half)</label>
-                        <input type="text" placeholder="5.0 / 2.5 kW" value={v.coolingFull} onChange={e => updateVariant(v.id, 'coolingFull', e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+                        <input type="text" placeholder="5.0 / 2.5 kW" value={v.coolingFull} onChange={e => updateVariant(v.id, 'coolingFull', e.target.value)} className="w-full admin-input-form bg-white" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-slate-500 uppercase">Power (Full/Half)</label>
-                        <input type="text" placeholder="1752 / 615 W" value={v.powerFull} onChange={e => updateVariant(v.id, 'powerFull', e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+                        <input type="text" placeholder="1752 / 615 W" value={v.powerFull} onChange={e => updateVariant(v.id, 'powerFull', e.target.value)} className="w-full admin-input-form bg-white" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-slate-500 uppercase">ISEER</label>
-                        <input type="text" placeholder="3.70" value={v.iseer} onChange={e => updateVariant(v.id, 'iseer', e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none" />
+                        <input type="text" placeholder="3.70" value={v.iseer} onChange={e => updateVariant(v.id, 'iseer', e.target.value)} className="w-full admin-input-form bg-white" />
                       </div>
                     </div>
                   </div>
@@ -382,7 +403,7 @@ const AddProduct = () => {
             {/* 4. Features & Long Description */}
             <section>
               <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-2">
-                <h3 className="text-sm font-bold text-[#0072bc] uppercase tracking-wider">4. Features & Detailed Content</h3>
+                <h3 className="text-xs font-bold text-brand uppercase tracking-wider">4. Features & Detailed Content</h3>
                 <button type="button" onClick={addFeature} className="text-xs font-bold text-[#0072bc] flex items-center gap-1 hover:text-blue-800 transition-colors">
                   <Plus className="w-4 h-4" /> Add Highlight
                 </button>
@@ -406,31 +427,31 @@ const AddProduct = () => {
                   ))}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Detailed Features (Long Text / Markdown)</label>
-                  <textarea value={formState.detailedFeatures} onChange={e => setField('detailedFeatures', e.target.value)} rows="4" placeholder="Comprehensive product story and additional features..." className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm text-slate-900 outline-none transition-all resize-none"></textarea>
+                  <label className="admin-label block mb-1">Detailed Features (Long Text / Markdown)</label>
+                  <textarea value={formState.detailedFeatures} onChange={e => setField('detailedFeatures', e.target.value)} rows="4" placeholder="Comprehensive product story and additional features..." className="w-full admin-input-form resize-none"></textarea>
                 </div>
               </div>
             </section>
 
             {/* 5. Installation Scope */}
             <section>
-              <h3 className="text-sm font-bold text-[#0072bc] uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">5. Installation & Service Scope</h3>
+              <h3 className="text-xs font-bold text-brand uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">5. Installation & Service Scope</h3>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Standard Charges</label>
-                  <input type="text" value={formState.standardCharges} onChange={e => setField('standardCharges', e.target.value)} placeholder="₹1,500" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Standard Charges</label>
+                  <input type="text" value={formState.standardCharges} onChange={e => setField('standardCharges', e.target.value)} placeholder="₹1,500" className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Outdoor Stand Cost</label>
-                  <input type="text" value={formState.outdoorStand} onChange={e => setField('outdoorStand', e.target.value)} placeholder="₹750" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Outdoor Stand Cost</label>
+                  <input type="text" value={formState.outdoorStand} onChange={e => setField('outdoorStand', e.target.value)} placeholder="₹750" className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Timeline</label>
-                  <input type="text" value={formState.timeline} onChange={e => setField('timeline', e.target.value)} placeholder="e.g. 2 - 3 days" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Timeline</label>
+                  <input type="text" value={formState.timeline} onChange={e => setField('timeline', e.target.value)} placeholder="e.g. 2 - 3 days" className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Free Services</label>
-                  <input type="text" value={formState.freeServices} onChange={e => setField('freeServices', e.target.value)} placeholder="e.g. 2 Services (1 Year)" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Free Services</label>
+                  <input type="text" value={formState.freeServices} onChange={e => setField('freeServices', e.target.value)} placeholder="e.g. 2 Services (1 Year)" className="w-full admin-input-form" />
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -463,25 +484,25 @@ const AddProduct = () => {
 
             {/* 6. Warranty & Media */}
             <section>
-              <h3 className="text-sm font-bold text-[#0072bc] uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">6. Warranty & Product Image</h3>
+              <h3 className="text-xs font-bold text-brand uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">6. Warranty & Product Image</h3>
               {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-8"> */}
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Compressor Warranty</label>
-                  <input type="text" value={formState.compressorWarranty} onChange={e => setField('compressorWarranty', e.target.value)} placeholder="e.g. 10 Years (1+9)" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Compressor Warranty</label>
+                  <input type="text" value={formState.compressorWarranty} onChange={e => setField('compressorWarranty', e.target.value)} placeholder="e.g. 10 Years (1+9)" className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">PCB Warranty</label>
-                  <input type="text" value={formState.pcbWarranty} onChange={e => setField('pcbWarranty', e.target.value)} placeholder="e.g. 5 Years (1+4)" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">PCB Warranty</label>
+                  <input type="text" value={formState.pcbWarranty} onChange={e => setField('pcbWarranty', e.target.value)} placeholder="e.g. 5 Years (1+4)" className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Unit Wide Warranty</label>
-                  <input type="text" value={formState.unitWideWarranty} onChange={e => setField('unitWideWarranty', e.target.value)} placeholder="e.g. 1 Year" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0072bc] rounded-lg px-4 py-3 text-sm outline-none" />
+                  <label className="admin-label block mb-1">Unit Wide Warranty</label>
+                  <input type="text" value={formState.unitWideWarranty} onChange={e => setField('unitWideWarranty', e.target.value)} placeholder="e.g. 1 Year" className="w-full admin-input-form" />
                 </div>
               </div>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2 max-w-sm">
-                  <label className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                  <label className="admin-label flex items-center justify-between">
                     Primary Product Image
                     <span className="text-[10px] text-slate-400 font-normal">Recommended: 1000 x 1000 px (White Background)</span>
                   </label>
@@ -515,7 +536,7 @@ const AddProduct = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700 flex items-center justify-between">
+                  <label className="admin-label flex items-center justify-between">
                     Product Gallery (Additional Angles)
                     <span className="text-[10px] text-slate-400 font-normal">Min 1000px width recommended</span>
                   </label>
@@ -568,10 +589,10 @@ const AddProduct = () => {
 
             {/* Submit Actions */}
             <div className="pt-8 border-t border-slate-200 flex items-center justify-end gap-4 mt-12">
-              <button type="button" onClick={() => navigate(-1)} className="px-6 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors border border-transparent">
+              <button type="button" onClick={() => navigate(-1)} className="admin-btn-secondary">
                 Cancel
               </button>
-              <button type="submit" className="px-8 py-3 text-sm font-bold text-white bg-[#0072bc] hover:bg-[#002f54] rounded-xl transition-colors shadow-lg shadow-blue-500/20 active:scale-[0.98]">
+              <button type="submit" className="admin-btn-primary">
                 Save & Publish Product
               </button>
             </div>

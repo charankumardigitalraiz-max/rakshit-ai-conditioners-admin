@@ -62,7 +62,7 @@ const ContactMessages = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="admin-page">
       <DeleteConfirmModal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -74,8 +74,8 @@ const ContactMessages = () => {
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Inbox</h1>
-          <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">Contact Form Submissions</p>
+          <h1 className="admin-page-title">Inbox</h1>
+          <p className="admin-page-subtitle">Contact Form Submissions</p>
         </div>
       </div>
 

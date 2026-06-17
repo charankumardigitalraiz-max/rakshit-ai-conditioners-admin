@@ -96,10 +96,10 @@ const Profile = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12">
+    <div className="admin-page max-w-4xl mx-auto pb-12">
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Profile</h1>
-        <p className="text-sm text-slate-500 mt-1.5">Manage your account settings, security preferences, and administrative identity.</p>
+        <h1 className="admin-page-title">Admin Profile</h1>
+        <p className="admin-page-subtitle">Account settings and security preferences</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -131,7 +131,7 @@ const Profile = () => {
                 <Camera className="w-4 h-4" />
               </button>
             </div>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">{profile.name}</h2>
+            <h2 className="text-sm font-bold text-slate-900 tracking-tight">{profile.name}</h2>
             <p className="text-xs font-bold text-brand uppercase tracking-widest mt-1">{profile.role}</p>
 
             <div className="mt-8 w-full space-y-3">
@@ -156,26 +156,26 @@ const Profile = () => {
             <div className="p-8 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
+                  <label className="admin-label ml-1 block mb-1">Full Name</label>
                   <div className="relative">
                     <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
+                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-lg pl-11 pr-4 py-2 text-xs font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
+                  <label className="admin-label ml-1 block mb-1">Email Address</label>
                   <div className="relative">
                     <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
+                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-lg pl-11 pr-4 py-2 text-xs font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
                     />
                   </div>
                 </div>
@@ -185,7 +185,7 @@ const Profile = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-brand/20 active:scale-[0.98] disabled:opacity-50"
+                  className="admin-btn-primary disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   {isLoading ? 'Saving...' : 'Save Changes'}
@@ -201,7 +201,7 @@ const Profile = () => {
             <div className="p-8 space-y-5">
               <div className="grid grid-cols-1 gap-5">
                 <div className="space-y-2">
-                  <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">Current Password</label>
+                  <label className="admin-label ml-1 block mb-1">Current Password</label>
                   <div className="relative">
                     <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
@@ -209,29 +209,29 @@ const Profile = () => {
                       value={passwords.currentPassword}
                       onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
                       required
-                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-xl pl-11 pr-4 py-3 text-sm font-medium outline-none transition-all"
+                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-lg pl-11 pr-4 py-2 text-xs font-medium outline-none transition-all"
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">New Password</label>
+                    <label className="admin-label ml-1 block mb-1">New Password</label>
                     <input
                       type="password"
                       value={passwords.newPassword}
                       onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
                       required
-                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all"
+                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-lg px-4 py-2 text-xs font-medium outline-none transition-all"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider ml-1">Confirm New Password</label>
+                    <label className="admin-label ml-1 block mb-1">Confirm New Password</label>
                     <input
                       type="password"
                       value={passwords.confirmPassword}
                       onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
                       required
-                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all"
+                      className="w-full bg-slate-50/50 border border-slate-200 focus:border-brand focus:ring-4 focus:ring-brand/5 rounded-lg px-4 py-2 text-xs font-medium outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -240,7 +240,7 @@ const Profile = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-slate-200 active:scale-[0.98] disabled:opacity-50"
+                  className="admin-btn-primary disabled:opacity-50"
                 >
                   <Lock className="w-4 h-4" />
                   {isLoading ? 'Updating...' : 'Update Password'}

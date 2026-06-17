@@ -67,7 +67,7 @@ const Enquiries = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="admin-page">
       <DeleteConfirmModal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -79,8 +79,8 @@ const Enquiries = () => {
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Leads</h1>
-          <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">Enquiries & Quote Requests</p>
+          <h1 className="admin-page-title">Leads</h1>
+          <p className="admin-page-subtitle">Enquiries & Quote Requests</p>
         </div>
       </div>
 

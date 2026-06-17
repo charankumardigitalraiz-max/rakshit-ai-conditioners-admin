@@ -17,25 +17,25 @@ const Messages = () => {
   const activeData = activeTab === 'inquiries' ? inquiries : contacts
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="admin-page">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Messages & Inquiries</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage product enquiries and contact form submissions.</p>
+          <h1 className="admin-page-title">Messages & Inquiries</h1>
+          <p className="admin-page-subtitle">Product enquiries and contact submissions</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-slate-100 rounded-xl w-fit">
+      <div className="admin-filter-tabs w-fit">
         <button 
           onClick={() => setActiveTab('inquiries')}
-          className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'inquiries' ? 'bg-white text-brand shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`admin-filter-tab ${activeTab === 'inquiries' ? 'admin-filter-tab-active' : 'admin-filter-tab-inactive'}`}
         >
           Product Inquiries
         </button>
         <button 
           onClick={() => setActiveTab('contacts')}
-          className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'contacts' ? 'bg-white text-brand shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`admin-filter-tab ${activeTab === 'contacts' ? 'admin-filter-tab-active' : 'admin-filter-tab-inactive'}`}
         >
           Contact Submissions
         </button>

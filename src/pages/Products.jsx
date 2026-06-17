@@ -90,7 +90,7 @@ const Products = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="admin-page">
       <DeleteConfirmModal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -102,12 +102,12 @@ const Products = () => {
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-lg font-bold text-slate-900 tracking-tight">Products</h1>
-          <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">Inventory Management</p>
+          <h1 className="admin-page-title">Products</h1>
+          <p className="admin-page-subtitle">Inventory Management</p>
         </div>
         <Link
           to="/products/add"
-          className="inline-flex items-center gap-2 bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-brand transition-all shadow-sm"
+          className="admin-btn-primary"
         >
           <Plus className="w-3.5 h-3.5" />
           Add New
