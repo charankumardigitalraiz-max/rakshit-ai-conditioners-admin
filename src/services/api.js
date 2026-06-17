@@ -167,6 +167,21 @@ export const errorCodesAPI = {
   delete: (id) => API.delete(`/error-codes/${id}`),
 };
 
+// ─── Service Approach ────────────────────────────────────────
+export const serviceApproachAPI = {
+  get: () => API.get('/service-approach'),
+  update: (data) => {
+    const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    return API.put('/service-approach', data, config);
+  },
+};
+
+// ─── Service Training ────────────────────────────────────────
+export const serviceTrainingAPI = {
+  get: () => API.get('/service-training'),
+  update: (data) => API.put('/service-training', data),
+};
+
 // ─── Dashboard ───────────────────────────────────────────────
 export const dashboardAPI = {
   getCounts: () => API.get('/dashboard/counts'),

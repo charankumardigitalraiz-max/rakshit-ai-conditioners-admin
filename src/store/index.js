@@ -12,6 +12,8 @@ import categoriesReducer from './slices/categorySlice';
 import branchesReducer from './slices/branchesSlice';
 import serviceLocationsReducer from './slices/serviceLocationsSlice';
 import errorCodesReducer from './slices/errorCodesSlice';
+import serviceApproachReducer from './slices/serviceApproachSlice';
+import serviceTrainingReducer from './slices/serviceTrainingSlice';
 
 export const store = configureStore({
   reducer: {
@@ -28,5 +30,7 @@ export const store = configureStore({
     branches: branchesReducer,
     serviceLocations: serviceLocationsReducer,
     errorCodes: errorCodesReducer,
+    serviceApproach: serviceApproachReducer,
+    serviceTraining: serviceTrainingReducer,
   },
 });
