@@ -22,6 +22,7 @@ import ServiceLocations from './pages/ServiceLocations'
 import ErrorCodes from './pages/ErrorCodes'
 import ServiceApproach from './pages/ServiceApproach'
 import ServiceTraining from './pages/ServiceTraining'
+import Settings from './pages/Settings'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -76,6 +77,7 @@ function App() {
           <Route path="service-training" element={<ServiceTraining />} />
           <Route path="error-codes" element={<ErrorCodes />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="*" element={<div className="p-8 text-center text-slate-500">Page under construction</div>} />
         </Route>
       </Routes>

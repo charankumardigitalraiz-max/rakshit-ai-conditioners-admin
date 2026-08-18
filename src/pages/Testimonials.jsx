@@ -5,12 +5,14 @@ import { fetchTestimonials, createTestimonial, deleteTestimonialAsync } from '..
 import { getImageUrl } from '../utils/imageHandler'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import Modal from '../components/ui/Modal'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const Testimonials = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
+  const [priority, setPriority] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -32,6 +34,7 @@ const Testimonials = () => {
 
     const data = new FormData()
     data.append('image', selectedFile)
+    data.append('priority', priority === '' ? 999999 : priority)
 
     try {
       await dispatch(createTestimonial(data)).unwrap()
@@ -47,6 +50,7 @@ const Testimonials = () => {
   const resetForm = () => {
     setSelectedFile(null)
     setPreviewImage(null)
+    setPriority('')
     setIsDragging(false)
   }
 
@@ -157,68 +161,53 @@ const Testimonials = () => {
         )}
       </div>
 
-      <AnimatePresence>
-        {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
-            >
-              <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
-                    <ImageIcon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900 leading-tight">Add Testimonial</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Visual Feedback</p>
-                  </div>
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title="Add Testimonial"
+        subtitle="Visual Feedback"
+        icon={ImageIcon}
+      >
+        <div className="p-5 space-y-4">
+          <div
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => { e.preventDefault(); setIsDragging(false); onImageChange(e); }}
+            className={`relative group border-2 border-dashed rounded-xl transition-all h-64 overflow-hidden cursor-pointer flex flex-col items-center justify-center text-center
+              ${isDragging ? 'border-brand bg-brand/5' : 'border-slate-100 hover:border-brand/30 bg-slate-50/50'}
+            `}
+          >
+            <input type="file" accept="image/*" className="hidden" id="testimonial-upload" onChange={onImageChange} />
+            <label htmlFor="testimonial-upload" className="absolute inset-0 cursor-pointer z-10"></label>
+
+            {previewImage ? (
+              <img src={getImageUrl(previewImage)} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <div className="space-y-2 p-4">
+                <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center mx-auto shadow-sm text-slate-300">
+                  <Upload className="w-6 h-6" />
                 </div>
-                <button onClick={() => setIsFormOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
-                  <X className="w-4 h-4" />
-                </button>
+                <p className="text-xs font-bold text-slate-900">Drop testimonial here</p>
+                <p className="text-[10px] text-slate-400 font-medium">JPG or PNG (max. 5MB)</p>
               </div>
-
-              <div className="p-5 space-y-4">
-                <div
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={(e) => { e.preventDefault(); setIsDragging(false); onImageChange(e); }}
-                  className={`relative group border-2 border-dashed rounded-xl transition-all h-64 overflow-hidden cursor-pointer flex flex-col items-center justify-center text-center
-                    ${isDragging ? 'border-brand bg-brand/5' : 'border-slate-100 hover:border-brand/30 bg-slate-50/50'}
-                  `}
-                >
-                  <input type="file" accept="image/*" className="hidden" id="testimonial-upload" onChange={onImageChange} />
-                  <label htmlFor="testimonial-upload" className="absolute inset-0 cursor-pointer z-10"></label>
-
-                  {previewImage ? (
-                    <img src={getImageUrl(previewImage)} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <div className="space-y-2 p-4">
-                      <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center mx-auto shadow-sm text-slate-300">
-                        <Upload className="w-6 h-6" />
-                      </div>
-                      <p className="text-xs font-bold text-slate-900">Drop testimonial here</p>
-                      <p className="text-[10px] text-slate-400 font-medium">JPG or PNG (max. 5MB)</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 pt-2">
-                  <button type="button" onClick={() => setIsFormOpen(false)} className="flex-1 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
-                    Cancel
-                  </button>
-                  <button onClick={handleSubmit} disabled={!selectedFile} className="flex-1 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50">
-                    Upload Preview
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+            )}
           </div>
-        )}
-      </AnimatePresence>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Priority</label>
+            <input type="number" value={priority === 999999 ? '' : priority} onChange={e => setPriority(e.target.value === '' ? 999999 : parseInt(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" />
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <button type="button" onClick={() => setIsFormOpen(false)} className="flex-1 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
+              Cancel
+            </button>
+            <button onClick={handleSubmit} disabled={!selectedFile} className="flex-1 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50">
+              Upload Preview
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

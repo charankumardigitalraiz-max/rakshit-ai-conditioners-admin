@@ -15,8 +15,8 @@ const AddProduct = () => {
   const { id } = useParams()
   const isEditing = !!id
 
-  // const { items: allCategories } = useSelector(state => state.categories)
-
+  const { items: allCategories } = useSelector(state => state.categories || { items: [] })
+  const activeCategories = allCategories.filter(c => c.status === 'active')
   const [variants, setVariants] = useState([
     { id: 1, capacity: '1.5 Ton', sku: 'FTKL50TV16', price: '45000', coolingFull: '5.0 kW', coolingHalf: '2.5 kW', powerFull: '1752 W', powerHalf: '615 W', annualPower: '1045 kWh', iseer: '3.70' }
   ])
@@ -28,8 +28,8 @@ const AddProduct = () => {
   const [excludes, setExcludes] = useState(['Civil work', 'Extra pipe beyond 3 meters'])
 
   const [formState, setFormState] = useState({
-    name: '', category: 'Room AC', branch: '', series: '', refrigerant: 'R32', stockStatus: 'Active',
-    shortDescription: '',
+    name: '', category: 'Room AC', branch: '', series: '', refrigerant: 'R32', stockStatus: 'Active', status: 'Active',
+    priority: '', shortDescription: '',
     powerSupply: '1 Phase, 230 V, 50 Hz', condenserCoil: '100% Copper', operatingTemp: 'Stable up to 52°C',
     standardCharges: '', outdoorStand: '', timeline: '2 - 3 days', freeServices: '2 free services in the first year',
     compressorWarranty: '10 Years', pcbWarranty: '5 Years', unitWideWarranty: '1 Year',
@@ -95,6 +95,8 @@ const AddProduct = () => {
           series: product.series || '',
           refrigerant: product.refrigerant || 'R32',
           stockStatus: product.stockStatus || 'Active',
+          status: product.status || 'Active',
+          priority: (product.priority === 999999 || product.priority == null) ? '' : product.priority,
           shortDescription: product.shortDescription || '',
           powerSupply: product.technicalSpecs?.powerSupply || '1 Phase, 230 V, 50 Hz',
           condenserCoil: product.technicalSpecs?.condenserCoil || '100% Copper',
@@ -154,6 +156,8 @@ const AddProduct = () => {
       data.append('series', formState.series)
       data.append('refrigerant', formState.refrigerant)
       data.append('stockStatus', formState.stockStatus)
+      data.append('status', formState.status)
+      data.append('priority', formState.priority === '' ? 999999 : formState.priority)
       data.append('shortDescription', formState.shortDescription)
       data.append('detailedFeatures', formState.detailedFeatures)
 
@@ -284,11 +288,9 @@ const AddProduct = () => {
                     required
                   >
                     <option value="" disabled>Select Category</option>
-                    <option value="Room AC">Room AC</option>
-                    <option value="Split AC">Split AC</option>
-                    <option value="Commercial AC">Commercial AC</option>
-                    <option value="Central AC">Central AC</option>
-                    <option value="Ventilation">Ventilation</option>
+                    {['Split AC', 'Window AC', 'Cassette AC', 'Tower AC', 'Ductable AC', 'VRF / VRV System', 'Central AC', 'Multi-Split AC', 'Room AC', 'Commercial AC'].map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -322,6 +324,17 @@ const AddProduct = () => {
                     <option value="Out of Stock">Out of Stock</option>
                     <option value="Inactive">Inactive</option>
                   </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="admin-label block mb-1">Status (Visibility)</label>
+                  <select value={formState.status} onChange={e => setField('status', e.target.value)} className="w-full admin-input-form">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="admin-label block mb-1">Priority</label>
+                  <input type="number" value={formState.priority === 999999 ? '' : formState.priority} onChange={e => setField('priority', e.target.value === '' ? 999999 : parseInt(e.target.value))} className="w-full admin-input-form" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <label className="admin-label block mb-1">Short Description (Quote)</label>

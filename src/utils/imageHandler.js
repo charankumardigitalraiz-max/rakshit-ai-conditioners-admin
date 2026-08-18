@@ -1,5 +1,13 @@
+// const API_BASE_URL =
+//   import.meta.env.VITE_API_BASE_URL || 'https://rakshit-ai-conditioners-backend.onrender.com/api/admin';
+
+
+
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://rakshit-ai-conditioners-backend.onrender.com/api/admin';
+  import.meta.env.VITE_API_BASE_URL || 'http://192.168.0.115:9000/api/admin';
+
+
+
 
 export const SERVER_URL =
   import.meta.env.VITE_API_ORIGIN ||

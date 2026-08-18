@@ -2,8 +2,9 @@ import axios from 'axios';
 
 // Central API configuration
 const API = axios.create({
-  baseURL: 'https://rakshit-ai-conditioners-backend.onrender.com/api/admin',
+  // baseURL: 'https://rakshit-ai-conditioners-backend.onrender.com/api/admin',
   // baseURL: 'http://localhost:9000/api/admin',
+  baseURL: 'http://192.168.0.115:9000/api/admin',
 });
 
 // Add a request interceptor to attach the auth token
@@ -185,6 +186,13 @@ export const serviceTrainingAPI = {
 // ─── Dashboard ───────────────────────────────────────────────
 export const dashboardAPI = {
   getCounts: () => API.get('/dashboard/counts'),
+};
+
+// ─── Settings ────────────────────────────────────────────────
+export const settingsAPI = {
+  getAll: () => API.get('/settings'),
+  saveAll: (data) => API.post('/settings', data),
+  delete: (key) => API.delete(`/settings/${key}`),
 };
 
 export default API;

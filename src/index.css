@@ -7,7 +7,7 @@
   --color-surface: #f8fafc;
   --color-border: #e2e8f0;
   
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
 }
 
 @layer utilities {
@@ -24,15 +24,17 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply bg-surface text-slate-900 font-sans;
+    @apply bg-surface text-slate-600 font-sans;
     font-size: 13px;
+    letter-spacing: -0.01em;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-semibold tracking-tight text-slate-900;
   }
 }
 
@@ -51,6 +53,10 @@
 
   .admin-page {
     @apply space-y-5;
+  }
+
+  .admin-page > div.flex:first-child {
+    @apply bg-white border border-slate-200 rounded-xl p-5 flex items-center justify-between gap-4 shadow-sm;
   }
 
   .admin-page-title {

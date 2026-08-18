@@ -1,9 +1,10 @@
 import React from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Package, Briefcase, Award, LogOut, MessageSquare, Mail, Users, Quote, ChevronRight, MapPin, Wrench, AlertTriangle, Target, GraduationCap } from 'lucide-react'
+import { LayoutDashboard, Package, Briefcase, Award, LogOut, MessageSquare, Mail, Users, Quote, ChevronRight, MapPin, Wrench, AlertTriangle, Target, GraduationCap, Settings } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../store/slices/authSlice'
+import Modal from '../components/ui/Modal'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const AdminLayout = () => {
@@ -37,54 +38,51 @@ const AdminLayout = () => {
     { divider: true },
     { path: '/enquiries', label: 'Leads', icon: MessageSquare },
     { path: '/contacts', label: 'Messages', icon: Mail },
+    { divider: true },
+    { path: '/settings', label: 'Settings', icon: Settings },
   ]
 
   return (
     <div className="min-h-screen bg-surface flex">
       {/* Logout Modal */}
-      <AnimatePresence>
-        {showLogoutModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl w-full max-w-xs overflow-hidden border border-slate-200"
-            >
-              <div className="p-5 text-center">
-                <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mx-auto mb-3">
-                  <LogOut className="w-6 h-6" />
-                </div>
-                <h3 className="text-sm font-bold text-slate-900 mb-1">Confirm Logout</h3>
-                <p className="text-slate-500 text-xs leading-relaxed">
-                  Are you sure you want to exit?
-                </p>
-              </div>
-              <div className="flex border-t border-slate-100 p-3 gap-2 bg-slate-50/50">
-                <button
-                  onClick={() => setShowLogoutModal(false)}
-                  className="flex-1 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-white rounded-lg transition-all border border-slate-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={onLogout}
-                  className="flex-1 px-3 py-2 text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-all shadow-sm"
-                >
-                  Logout
-                </button>
-              </div>
-            </motion.div>
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Confirm Logout"
+        subtitle="Exit Session"
+        icon={LogOut}
+        maxWidth="max-w-xs"
+      >
+        <div className="p-5 text-center">
+          <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mx-auto mb-3">
+            <LogOut className="w-6 h-6" />
           </div>
-        )}
-      </AnimatePresence>
+          <p className="text-slate-500 text-xs leading-relaxed">
+            Are you sure you want to exit?
+          </p>
+        </div>
+        <div className="flex border-t border-slate-100 p-3 gap-2 bg-slate-50/50">
+          <button
+            onClick={() => setShowLogoutModal(false)}
+            className="flex-1 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-white rounded-lg transition-all border border-slate-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onLogout}
+            className="flex-1 px-3 py-2 text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-all shadow-sm"
+          >
+            Logout
+          </button>
+        </div>
+      </Modal>
 
       {/* Sidebar */}
       <aside className="w-60 bg-white border-r border-slate-200 flex flex-col fixed h-full z-30">
         <div className="h-16 flex items-center px-5 border-b border-slate-100 bg-white">
           <Link to="/" className="flex items-center">
             <img
-              src="/Rakshith logo web png.png"
+              src="/Rakshith logo web png copy.png"
               alt="Rakshith Air Conditioners"
               className="h-10 w-auto object-contain"
             />
@@ -129,7 +127,7 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 ml-60 flex flex-col min-h-screen">
+      <div className="flex-1 ml-60 flex flex-col min-h-screen min-w-0">
         <header className="h-14 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
             <span>Rakshith Air Condition</span>
@@ -154,7 +152,7 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-5 lg:p-6 max-w-7xl">
+        <main className="flex-1 p-5 lg:p-6 max-w-7xl w-full min-w-0 overflow-hidden">
           <Outlet />
         </main>
       </div>

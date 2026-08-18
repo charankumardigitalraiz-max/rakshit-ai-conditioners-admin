@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Plus, Search, Edit, Trash2, X, AlertTriangle } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import Modal from '../components/ui/Modal'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   fetchErrorCodes,
@@ -243,116 +244,103 @@ const ErrorCodes = () => {
         </div>
       </div>
 
-      <AnimatePresence>
-        {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-slate-200"
-            >
-              <div className="flex items-center justify-between p-5 border-b border-slate-100">
-                <h2 className="admin-modal-title">
-                  {editingId ? 'Edit Error Code' : 'Add Error Code'}
-                </h2>
-                <button onClick={() => { setIsFormOpen(false); resetForm() }} className="p-1 text-slate-400 hover:text-slate-600">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="admin-label block mb-1.5">Code *</label>
-                    <input
-                      type="text"
-                      value={formData.code}
-                      onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                      placeholder="e.g. U4"
-                      className={`admin-input-form ${showValidation && !formData.code ? 'border-red-300' : ''}`}
-                    />
-                  </div>
-                  <div>
-                    <label className="admin-label block mb-1.5">Category *</label>
-                    <select
-                      value={formData.unit}
-                      onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                      className="admin-input-form"
-                    >
-                      {UNIT_OPTIONS.map((unit) => (
-                        <option key={unit} value={unit}>{unit}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="admin-label block mb-1.5">Title *</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className={`admin-input-form ${showValidation && !formData.title ? 'border-red-300' : ''}`}
-                  />
-                </div>
-                <div>
-                  <label className="admin-label block mb-1.5">Description *</label>
-                  <textarea
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className={`admin-input-form resize-none ${showValidation && !formData.description ? 'border-red-300' : ''}`}
-                  />
-                </div>
-                <div>
-                  <label className="admin-label block mb-1.5">Recommended Action *</label>
-                  <textarea
-                    rows={3}
-                    value={formData.action}
-                    onChange={(e) => setFormData({ ...formData, action: e.target.value })}
-                    className={`admin-input-form resize-none ${showValidation && !formData.action ? 'border-red-300' : ''}`}
-                  />
-                </div>
-                <div>
-                  <label className="admin-label block mb-1.5">Sort Order</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.sortOrder}
-                    onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
-                    className="admin-input-form"
-                  />
-                </div>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="rounded border-slate-300 text-brand focus:ring-brand"
-                  />
-                  <span className="text-xs font-medium text-slate-600">Show on website</span>
-                </label>
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => { setIsFormOpen(false); resetForm() }}
-                    className="admin-btn-secondary"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="admin-btn-primary disabled:opacity-60"
-                  >
-                    {submitting ? 'Saving...' : editingId ? 'Update' : 'Create'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => { setIsFormOpen(false); resetForm() }}
+        title={editingId ? 'Edit Error Code' : 'Add Error Code'}
+        subtitle="Error Category"
+        icon={AlertTriangle}
+        maxWidth="max-w-lg"
+      >
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="admin-label block mb-1.5">Code *</label>
+              <input
+                type="text"
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                placeholder="e.g. U4"
+                className={`admin-input-form ${showValidation && !formData.code ? 'border-red-300' : ''}`}
+              />
+            </div>
+            <div>
+              <label className="admin-label block mb-1.5">Category *</label>
+              <select
+                value={formData.unit}
+                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                className="admin-input-form"
+              >
+                {UNIT_OPTIONS.map((unit) => (
+                  <option key={unit} value={unit}>{unit}</option>
+                ))}
+              </select>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+          <div>
+            <label className="admin-label block mb-1.5">Title *</label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className={`admin-input-form ${showValidation && !formData.title ? 'border-red-300' : ''}`}
+            />
+          </div>
+          <div>
+            <label className="admin-label block mb-1.5">Description *</label>
+            <textarea
+              rows={3}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className={`admin-input-form resize-none ${showValidation && !formData.description ? 'border-red-300' : ''}`}
+            />
+          </div>
+          <div>
+            <label className="admin-label block mb-1.5">Recommended Action *</label>
+            <textarea
+              rows={3}
+              value={formData.action}
+              onChange={(e) => setFormData({ ...formData, action: e.target.value })}
+              className={`admin-input-form resize-none ${showValidation && !formData.action ? 'border-red-300' : ''}`}
+            />
+          </div>
+          <div>
+            <label className="admin-label block mb-1.5">Sort Order</label>
+            <input
+              type="number"
+              min="1"
+              value={formData.sortOrder}
+              onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
+              className="admin-input-form"
+            />
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.isActive}
+              onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              className="rounded border-slate-300 text-brand focus:ring-brand"
+            />
+            <span className="text-xs font-medium text-slate-600">Show on website</span>
+          </label>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => { setIsFormOpen(false); resetForm() }}
+              className="admin-btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="admin-btn-primary disabled:opacity-60"
+            >
+              {submitting ? 'Saving...' : editingId ? 'Update' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       <DeleteConfirmModal
         isOpen={!!deleteTarget}

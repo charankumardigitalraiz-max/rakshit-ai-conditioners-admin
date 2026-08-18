@@ -5,12 +5,13 @@ import { fetchServices, createService, deleteServiceAsync, updateServiceAsync } 
 import { getImageUrl } from '../utils/imageHandler'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import Modal from '../components/ui/Modal'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const Services = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [formData, setFormData] = useState({ title: '', description: '', status: 'Active' })
+  const [formData, setFormData] = useState({ title: '', description: '', status: 'Active', priority: '' })
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -65,7 +66,8 @@ const Services = () => {
     setFormData({
       title: service.title,
       description: service.description || '',
-      status: service.status || 'Active'
+      status: service.status || 'Active',
+      priority: (service.priority === 999999 || service.priority == null) ? '' : service.priority
     })
     setPreviewImage(service.image)
     setIsFormOpen(true)
@@ -74,7 +76,7 @@ const Services = () => {
   const closeModal = () => {
     setIsFormOpen(false)
     setEditingId(null)
-    setFormData({ title: '', description: '', status: 'Active' })
+    setFormData({ title: '', description: '', status: 'Active', priority: '' })
     setSelectedFile(null)
     setPreviewImage(null)
   }
@@ -103,9 +105,8 @@ const Services = () => {
       setDeleteTarget(null)
     }
   }
-
   return (
-    <div className="space-y-5">
+    <div className="admin-page">
       <DeleteConfirmModal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -221,77 +222,62 @@ const Services = () => {
         </div>
       )}
 
-      <AnimatePresence>
-        {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
-            >
-              <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
-                    <Wrench className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900 leading-tight">{editingId ? 'Edit Service' : 'New Service'}</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Service Details</p>
-                  </div>
-                </div>
-                <button onClick={closeModal} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Title</label>
-                  <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Precision Room Cooling" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Description</label>
-                  <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of the service..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all resize-none" />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
-                  <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all">
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Thumbnail</label>
-                  <label className="relative block h-28 border-2 border-dashed border-slate-100 rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all">
-                    <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
-                    {previewImage ? (
-                      <img src={getImageUrl(previewImage)} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-slate-300">
-                        <Upload className="w-5 h-5 mb-1" />
-                        <span className="text-[9px] font-bold uppercase tracking-wider">Upload Image</span>
-                      </div>
-                    )}
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button type="button" onClick={closeModal} className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
-                    Cancel
-                  </button>
-                  <button type="submit" className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
-                    {editingId ? 'Update Service' : 'Publish Service'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+      <Modal
+        isOpen={isFormOpen}
+        onClose={closeModal}
+        title={editingId ? 'Edit Service' : 'New Service'}
+        subtitle="Service Details"
+        icon={Wrench}
+      >
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Title</label>
+            <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Precision Room Cooling" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" required />
           </div>
-        )}
-      </AnimatePresence>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Description</label>
+            <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Brief description of the service..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all resize-none" />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
+            <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Priority</label>
+            <input type="number" value={formData.priority === 999999 ? '' : formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value === '' ? 999999 : parseInt(e.target.value) })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand transition-all" />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Thumbnail</label>
+            <label className="relative block h-28 border-2 border-dashed border-slate-100 rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all">
+              <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
+              {previewImage ? (
+                <img src={getImageUrl(previewImage)} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                  <Upload className="w-5 h-5 mb-1" />
+                  <span className="text-[9px] font-bold uppercase tracking-wider">Upload Image</span>
+                </div>
+              )}
+            </label>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onClick={closeModal} className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
+              Cancel
+            </button>
+            <button type="submit" className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
+              {editingId ? 'Update Service' : 'Publish Service'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   )
 }

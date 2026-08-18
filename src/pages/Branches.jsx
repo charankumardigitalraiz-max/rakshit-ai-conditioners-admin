@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import Modal from '../components/ui/Modal'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getImageUrl } from '../utils/imageHandler'
 import {
@@ -29,6 +30,7 @@ const emptyBranchForm = {
   video: null,
   isActive: true,
   sortOrder: 1,
+  priority: '',
 }
 
 const channelIcons = {
@@ -137,6 +139,7 @@ const Branches = () => {
       galleryLabel: branch.galleryLabel || 'Infrastructure Gallery',
       isActive: branch.isActive !== false,
       sortOrder: branch.sortOrder || 1,
+      priority: (branch.priority === 999999 || branch.priority == null) ? '' : branch.priority,
     })
     setExistingImages(branch.images || [])
     setNewImageFiles([])
@@ -191,6 +194,7 @@ const Branches = () => {
     data.append('galleryLabel', branchForm.galleryLabel)
     data.append('isActive', branchForm.isActive)
     data.append('sortOrder', branchForm.sortOrder)
+    data.append('priority', branchForm.priority)
     data.append('existingImages', JSON.stringify(existingImages))
     newImageFiles.forEach((file) => data.append('images', file))
     if (branchVideo) {
@@ -485,391 +489,332 @@ const Branches = () => {
       )}
 
       {/* Branch Form Modal */}
-      <AnimatePresence>
-        {isBranchFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-slate-200 flex flex-col"
-            >
-              <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
-                    <Building2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900 leading-tight">
-                      {editingBranchId ? 'Edit Branch' : 'New Branch'}
-                    </h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Location Details</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => { setIsBranchFormOpen(false); resetBranchForm() }}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+      <Modal
+        isOpen={isBranchFormOpen}
+        onClose={() => { setIsBranchFormOpen(false); resetBranchForm() }}
+        title={editingBranchId ? 'Edit Branch' : 'New Branch'}
+        subtitle="Location Details"
+        icon={Building2}
+        maxWidth="max-w-2xl"
+      >
+        <form onSubmit={handleBranchSubmit} className="p-5 space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.name ? 'text-rose-500' : 'text-slate-400'}`}>
+                Branch Name *
+              </label>
+              <input
+                value={branchForm.name}
+                onChange={e => setBranchForm({ ...branchForm, name: e.target.value })}
+                placeholder="e.g. Hyderabad Operations"
+                className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none ${showValidation && !branchForm.name ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Badge Label</label>
+              <input
+                value={branchForm.badge}
+                onChange={e => setBranchForm({ ...branchForm, badge: e.target.value })}
+                placeholder="e.g. Operational Node"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand"
+              />
+            </div>
+          </div>
 
-              <form onSubmit={handleBranchSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.name ? 'text-rose-500' : 'text-slate-400'}`}>
-                      Branch Name *
-                    </label>
-                    <input
-                      value={branchForm.name}
-                      onChange={e => setBranchForm({ ...branchForm, name: e.target.value })}
-                      placeholder="e.g. Hyderabad Operations"
-                      className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none ${showValidation && !branchForm.name ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Badge Label</label>
-                    <input
-                      value={branchForm.badge}
-                      onChange={e => setBranchForm({ ...branchForm, badge: e.target.value })}
-                      placeholder="e.g. Operational Node"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand"
-                    />
-                  </div>
-                </div>
+          <div className="space-y-1">
+            <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.address ? 'text-rose-500' : 'text-slate-400'}`}>
+              Full Address *
+            </label>
+            <textarea
+              value={branchForm.address}
+              onChange={e => setBranchForm({ ...branchForm, address: e.target.value })}
+              rows={3}
+              placeholder="Complete branch address..."
+              className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none resize-none ${showValidation && !branchForm.address ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
+            />
+          </div>
 
-                <div className="space-y-1">
-                  <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.address ? 'text-rose-500' : 'text-slate-400'}`}>
-                    Full Address *
-                  </label>
-                  <textarea
-                    value={branchForm.address}
-                    onChange={e => setBranchForm({ ...branchForm, address: e.target.value })}
-                    rows={3}
-                    placeholder="Complete branch address..."
-                    className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none resize-none ${showValidation && !branchForm.address ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
-                  />
-                </div>
+          <div className="space-y-1">
+            <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.mapEmbed ? 'text-rose-500' : 'text-slate-400'}`}>
+              Google Maps Embed URL *
+            </label>
+            <input
+              value={branchForm.mapEmbed}
+              onChange={e => setBranchForm({ ...branchForm, mapEmbed: e.target.value })}
+              placeholder="https://www.google.com/maps/embed?pb=..."
+              className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-900 outline-none ${showValidation && !branchForm.mapEmbed ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
+            />
+          </div>
 
-                <div className="space-y-1">
-                  <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.mapEmbed ? 'text-rose-500' : 'text-slate-400'}`}>
-                    Google Maps Embed URL *
-                  </label>
-                  <input
-                    value={branchForm.mapEmbed}
-                    onChange={e => setBranchForm({ ...branchForm, mapEmbed: e.target.value })}
-                    placeholder="https://www.google.com/maps/embed?pb=..."
-                    className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-900 outline-none ${showValidation && !branchForm.mapEmbed ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
-                  />
-                </div>
+          <div className="space-y-1">
+            <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.navUrl ? 'text-rose-500' : 'text-slate-400'}`}>
+              Navigation Link *
+            </label>
+            <input
+              value={branchForm.navUrl}
+              onChange={e => setBranchForm({ ...branchForm, navUrl: e.target.value })}
+              placeholder="https://maps.google.com/?q=lat,lng"
+              className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-900 outline-none ${showValidation && !branchForm.navUrl ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
+            />
+          </div>
 
-                <div className="space-y-1">
-                  <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !branchForm.navUrl ? 'text-rose-500' : 'text-slate-400'}`}>
-                    Navigation Link *
-                  </label>
-                  <input
-                    value={branchForm.navUrl}
-                    onChange={e => setBranchForm({ ...branchForm, navUrl: e.target.value })}
-                    placeholder="https://maps.google.com/?q=lat,lng"
-                    className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs text-slate-900 outline-none ${showValidation && !branchForm.navUrl ? 'border-rose-200' : 'border-slate-200 focus:border-brand'}`}
-                  />
-                </div>
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Map Position</label>
+              <select
+                value={branchForm.mapPosition}
+                onChange={e => setBranchForm({ ...branchForm, mapPosition: e.target.value })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none"
+              >
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sort Order</label>
+              <input
+                type="number"
+                min={1}
+                value={branchForm.sortOrder}
+                onChange={e => setBranchForm({ ...branchForm, sortOrder: Number(e.target.value) })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Priority</label>
+              <input
+                type="number"
+                value={branchForm.priority === 999999 ? '' : branchForm.priority}
+                onChange={e => setBranchForm({ ...branchForm, priority: e.target.value === '' ? 999999 : parseInt(e.target.value) })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none"
+              />
+            </div>
+          </div>
 
-                <div className="grid sm:grid-cols-3 gap-4">
-                  {/* <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Theme Color</label>
-                    <input
-                      type="color"
-                      value={branchForm.theme}
-                      onChange={e => setBranchForm({ ...branchForm, theme: e.target.value })}
-                      className="w-full h-9 rounded-lg border border-slate-200 cursor-pointer"
-                    />
-                  </div> */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Map Position</label>
-                    <select
-                      value={branchForm.mapPosition}
-                      onChange={e => setBranchForm({ ...branchForm, mapPosition: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none"
-                    >
-                      <option value="left">Left</option>
-                      <option value="right">Right</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sort Order</label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={branchForm.sortOrder}
-                      onChange={e => setBranchForm({ ...branchForm, sortOrder: Number(e.target.value) })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none"
-                    />
-                  </div>
-                </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gallery Section Label</label>
+            <input
+              value={branchForm.galleryLabel}
+              onChange={e => setBranchForm({ ...branchForm, galleryLabel: e.target.value })}
+              placeholder="e.g. Infrastructure Gallery"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand"
+            />
+          </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gallery Section Label</label>
-                  <input
-                    value={branchForm.galleryLabel}
-                    onChange={e => setBranchForm({ ...branchForm, galleryLabel: e.target.value })}
-                    placeholder="e.g. Infrastructure Gallery"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-brand"
-                  />
-                </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={branchForm.isActive}
+              onChange={e => setBranchForm({ ...branchForm, isActive: e.target.checked })}
+              className="rounded border-slate-300"
+            />
+            <label htmlFor="isActive" className="text-xs font-bold text-slate-600">Show on website</label>
+          </div>
 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    checked={branchForm.isActive}
-                    onChange={e => setBranchForm({ ...branchForm, isActive: e.target.checked })}
-                    className="rounded border-slate-300"
-                  />
-                  <label htmlFor="isActive" className="text-xs font-bold text-slate-600">Show on website</label>
-                </div>
-
-                {/* Gallery Images */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <ImageIcon className="w-3 h-3" />
-                    Gallery Images
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {allImagePreviews.map((img, i) => (
-                      <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-100 group/img">
-                        <img src={img} alt="" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeBranchImage(i)}
-                          className="absolute inset-0 bg-rose-500/80 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <label className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-brand/40 hover:bg-slate-50 transition-all">
-                      <Upload className="w-4 h-4 text-slate-300" />
-                      <span className="text-[8px] font-bold text-slate-400 mt-0.5">Add</span>
-                      <input type="file" accept="image/*" multiple className="hidden" onChange={onBranchImagesChange} />
-                    </label>
-                  </div>
-                </div>
-
-                {/* Video */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Video className="w-3 h-3" />
-                    Branch Video (optional)
-                  </label>
-                  {videoPreview ? (
-                    <div className="relative rounded-lg overflow-hidden border border-slate-100 h-32">
-                      <video src={videoPreview} className="w-full h-full object-cover" controls muted />
-                      <button
-                        type="button"
-                        onClick={() => { setBranchVideo(null); setVideoPreview(null); setRemoveVideo(true) }}
-                        className="absolute top-2 right-2 p-1 bg-rose-500 text-white rounded-md"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="block h-20 border-2 border-dashed border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-all">
-                      <input type="file" accept="video/*" className="hidden" onChange={onBranchVideoChange} />
-                      <div className="flex flex-col items-center justify-center h-full text-slate-300">
-                        <Video className="w-5 h-5" />
-                        <span className="text-[9px] font-bold uppercase mt-1">Upload Video</span>
-                      </div>
-                    </label>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-2 sticky bottom-0 bg-white">
+          {/* Gallery Images */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <ImageIcon className="w-3 h-3" />
+              Gallery Images
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {allImagePreviews.map((img, i) => (
+                <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-100 group/img">
+                  <img src={img} alt="" className="w-full h-full object-cover" />
                   <button
                     type="button"
-                    onClick={() => { setIsBranchFormOpen(false); resetBranchForm() }}
-                    className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg"
+                    onClick={() => removeBranchImage(i)}
+                    className="absolute inset-0 bg-rose-500/80 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm disabled:opacity-50"
-                  >
-                    {submitting ? 'Saving...' : editingBranchId ? 'Update Branch' : 'Add Branch'}
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
-              </form>
-            </motion.div>
+              ))}
+              <label className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-brand/40 hover:bg-slate-50 transition-all">
+                <Upload className="w-4 h-4 text-slate-300" />
+                <span className="text-[8px] font-bold text-slate-400 mt-0.5">Add</span>
+                <input type="file" accept="image/*" multiple className="hidden" onChange={onBranchImagesChange} />
+              </label>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+
+          {/* Video */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Video className="w-3 h-3" />
+              Branch Video (optional)
+            </label>
+            {videoPreview ? (
+              <div className="relative rounded-lg overflow-hidden border border-slate-100 h-32">
+                <video src={videoPreview} className="w-full h-full object-cover" controls muted />
+                <button
+                  type="button"
+                  onClick={() => { setBranchVideo(null); setVideoPreview(null); setRemoveVideo(true) }}
+                  className="absolute top-2 right-2 p-1 bg-rose-500 text-white rounded-md"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label className="block h-20 border-2 border-dashed border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-all">
+                <input type="file" accept="video/*" className="hidden" onChange={onBranchVideoChange} />
+                <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                  <Video className="w-5 h-5" />
+                  <span className="text-[9px] font-bold uppercase mt-1">Upload Video</span>
+                </div>
+              </label>
+            )}
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => { setIsBranchFormOpen(false); resetBranchForm() }}
+              className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 shadow-sm disabled:opacity-50"
+            >
+              {submitting ? 'Saving...' : editingBranchId ? 'Update Branch' : 'Add Branch'}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Contact Channel Edit Modal */}
-      <AnimatePresence>
-        {editingChannel && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden border border-slate-200 flex flex-col"
-            >
-              <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
-                    style={{ backgroundColor: channelForm.theme || '#0072bc' }}
-                  >
-                    {channelForm.type === 'email' ? <Mail className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <h2 className="admin-modal-title">Edit Contact Channel</h2>
-                    <p className="admin-page-subtitle">Website contact card</p>
-                  </div>
-                </div>
-                <button
-                  onClick={closeChannelEdit}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <form onSubmit={saveChannelEdit} className="p-5 space-y-4 overflow-y-auto">
-                <div className="space-y-1">
-                  <label className="admin-label">Label *</label>
-                  <input
-                    value={channelForm.label || ''}
-                    onChange={e => setChannelForm({ ...channelForm, label: e.target.value })}
-                    placeholder="e.g. Sales Operations"
-                    className="admin-input-form w-full"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="admin-label">Contact Value *</label>
-                  <input
-                    value={channelForm.contactValue || ''}
-                    onChange={e => setChannelForm({ ...channelForm, contactValue: e.target.value })}
-                    placeholder="e.g. +91 90300 64466"
-                    className="admin-input-form w-full"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="admin-label">Detail</label>
-                  <input
-                    value={channelForm.detail || ''}
-                    onChange={e => setChannelForm({ ...channelForm, detail: e.target.value })}
-                    placeholder="e.g. Enterprise & Industrial"
-                    className="admin-input-form w-full"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="admin-label">Type</label>
-                    <select
-                      value={channelForm.type || 'phone'}
-                      onChange={e => setChannelForm({ ...channelForm, type: e.target.value })}
-                      className="admin-input-form w-full"
-                    >
-                      <option value="phone">Phone</option>
-                      <option value="email">Email</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="admin-label">Theme Color</label>
-                    <input
-                      type="color"
-                      value={channelForm.theme || '#0072bc'}
-                      onChange={e => setChannelForm({ ...channelForm, theme: e.target.value })}
-                      className="w-full h-9 rounded-lg border border-slate-200 cursor-pointer"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="admin-label">Link (href)</label>
-                  <input
-                    value={channelForm.href || ''}
-                    onChange={e => setChannelForm({ ...channelForm, href: e.target.value })}
-                    placeholder="tel:+919030064466 or mailto:..."
-                    className="admin-input-form w-full"
-                  />
-                </div>
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button type="button" onClick={closeChannelEdit} className="admin-btn-secondary">
-                    Cancel
-                  </button>
-                  <button type="submit" disabled={channelSubmitting} className="admin-btn-primary disabled:opacity-60">
-                    {channelSubmitting ? 'Saving...' : 'Update Channel'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+      <Modal
+        isOpen={!!editingChannel}
+        onClose={closeChannelEdit}
+        title="Edit Contact Channel"
+        subtitle="Website contact card"
+        icon={channelForm.type === 'email' ? Mail : Phone}
+      >
+        <form onSubmit={saveChannelEdit} className="p-5 space-y-4">
+          <div className="space-y-1">
+            <label className="admin-label">Label *</label>
+            <input
+              value={channelForm.label || ''}
+              onChange={e => setChannelForm({ ...channelForm, label: e.target.value })}
+              placeholder="e.g. Sales Operations"
+              className="admin-input-form w-full"
+              required
+            />
           </div>
-        )}
-      </AnimatePresence>
+          <div className="space-y-1">
+            <label className="admin-label">Contact Value *</label>
+            <input
+              value={channelForm.contactValue || ''}
+              onChange={e => setChannelForm({ ...channelForm, contactValue: e.target.value })}
+              placeholder="e.g. +91 90300 64466"
+              className="admin-input-form w-full"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="admin-label">Detail</label>
+            <input
+              value={channelForm.detail || ''}
+              onChange={e => setChannelForm({ ...channelForm, detail: e.target.value })}
+              placeholder="e.g. Enterprise & Industrial"
+              className="admin-input-form w-full"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="admin-label">Type</label>
+              <select
+                value={channelForm.type || 'phone'}
+                onChange={e => setChannelForm({ ...channelForm, type: e.target.value })}
+                className="admin-input-form w-full"
+              >
+                <option value="phone">Phone</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="admin-label">Theme Color</label>
+              <input
+                type="color"
+                value={channelForm.theme || '#0072bc'}
+                onChange={e => setChannelForm({ ...channelForm, theme: e.target.value })}
+                className="w-full h-9 rounded-lg border border-slate-200 cursor-pointer"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="admin-label">Link (href)</label>
+            <input
+              value={channelForm.href || ''}
+              onChange={e => setChannelForm({ ...channelForm, href: e.target.value })}
+              placeholder="tel:+919030064466 or mailto:..."
+              className="admin-input-form w-full"
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onClick={closeChannelEdit} className="admin-btn-secondary">
+              Cancel
+            </button>
+            <button type="submit" disabled={channelSubmitting} className="admin-btn-primary disabled:opacity-60">
+              {channelSubmitting ? 'Saving...' : 'Update Channel'}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Preview Modal */}
-      <AnimatePresence>
+      <Modal
+        isOpen={!!previewBranch}
+        onClose={() => setPreviewBranch(null)}
+        title="Website Preview"
+        subtitle="Regional Branches"
+        icon={Building2}
+      >
         {previewBranch && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200"
+          <div className="p-5">
+            <span
+              className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-2"
+              style={{ backgroundColor: `${previewBranch.theme}15`, color: previewBranch.theme }}
             >
-              <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-900">Website Preview</h3>
-                <button onClick={() => setPreviewBranch(null)} className="p-1.5 text-slate-400 hover:bg-slate-50 rounded-lg">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="p-5">
-                <span
-                  className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-2"
-                  style={{ backgroundColor: `${previewBranch.theme}15`, color: previewBranch.theme }}
-                >
-                  {previewBranch.badge}
-                </span>
-                <h4 className="text-lg font-bold text-slate-900 mb-2">
-                  {previewBranch.name}
-                  <span style={{ color: previewBranch.theme }}>.</span>
-                </h4>
-                <p className="text-sm text-slate-500 mb-4">{previewBranch.address}</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                  {previewBranch.galleryLabel}
-                </p>
-                <div className="flex gap-2 mb-4">
-                  {(previewBranch.images || []).slice(0, 5).map((img, i) => (
-                    <div key={i} className="w-12 h-12 rounded-xl overflow-hidden border-2 border-white shadow-md">
-                      <img src={getImageUrl(img)} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ))}
-                  {previewBranch.video && (
-                    <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-                      <Video className="w-5 h-5 text-green-600" />
-                    </div>
-                  )}
+              {previewBranch.badge}
+            </span>
+            <h4 className="text-lg font-bold text-slate-900 mb-2">
+              {previewBranch.name}
+              <span style={{ color: previewBranch.theme }}>.</span>
+            </h4>
+            <p className="text-sm text-slate-500 mb-4">{previewBranch.address}</p>
+            <p className="text-[10px] font-bold text-slate-400 tracking-widest mb-2">
+              {previewBranch.galleryLabel}
+            </p>
+            <div className="flex gap-2 mb-4">
+              {(previewBranch.images || []).slice(0, 5).map((img, i) => (
+                <div key={i} className="w-12 h-12 rounded-xl overflow-hidden border-2 border-white shadow-md">
+                  <img src={getImageUrl(img)} alt="" className="w-full h-full object-cover" />
                 </div>
-                <a
-                  href={previewBranch.navUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl"
-                  style={{ backgroundColor: previewBranch.theme }}
-                >
-                  Launch Navigation
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </motion.div>
+              ))}
+              {previewBranch.video && (
+                <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                  <Video className="w-5 h-5 text-green-600" />
+                </div>
+              )}
+            </div>
+            <a
+              href={previewBranch.navUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl w-full"
+              style={{ backgroundColor: previewBranch.theme }}
+            >
+              Launch Navigation
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
         )}
-      </AnimatePresence>
+      </Modal>
     </div>
   )
 }

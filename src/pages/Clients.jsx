@@ -7,11 +7,13 @@ import { fetchBranches } from '../store/slices/branchesSlice';
 import { getImageUrl } from '../utils/imageHandler'
 import { toast } from 'react-hot-toast'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
+import DataTable from '../components/ui/DataTable'
+import Modal from '../components/ui/Modal'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const Clients = () => {
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const [formData, setFormData] = useState({ name: '', hp: '', location: '', category: '', branch: '' })
+  const [formData, setFormData] = useState({ name: '', hp: '', location: '', category: '', branch: '', priority: '' })
   const [editingId, setEditingId] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
@@ -27,6 +29,7 @@ const Clients = () => {
   const { items: clients, loading, error, pagination } = useSelector(state => state.clients)
   const { items: branches } = useSelector(state => state.branches)
   const categories = useSelector(state => state.categories?.items || [])
+  const activeCategories = categories.filter(c => c.status === 'active')
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -86,7 +89,7 @@ const Clients = () => {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', hp: '', location: '', category: '', branch: '' })
+    setFormData({ name: '', hp: '', location: '', category: '', branch: '', priority: '' })
     setEditingId(null)
     setSelectedFile(null)
     setPreviewImage(null)
@@ -99,7 +102,8 @@ const Clients = () => {
       hp: client.hp || '',
       location: client.location || '',
       category: client.category?._id || client.category || '',
-      branch: client.branch?._id || client.branch || ''
+      branch: client.branch?._id || client.branch || '',
+      priority: (client.priority === 9999 || client.priority === 999999 || client.priority == null) ? '' : client.priority
     })
     // dispatch(fetchCategories({ page: currentPage, limit: 12, search: debouncedSearch }))
     setEditingId(client._id || client.id)
@@ -132,26 +136,6 @@ const Clients = () => {
       setDeleteTarget(null)
     }
   }
-
-  const getPageNumbers = () => {
-    const totalPages = pagination?.pages || 0;
-    const currentPage = pagination?.page || 1;
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-
-    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let end = start + maxVisible - 1;
-
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(1, end - maxVisible + 1);
-    }
-
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  };
 
   return (
     <div className="admin-page">
@@ -200,235 +184,200 @@ const Clients = () => {
               className="bg-transparent text-[11px] font-bold text-slate-600 outline-none cursor-pointer pr-1"
             >
               <option value="">All Categories</option>
-              {categories.map(cat => (
+              {activeCategories.map(cat => (
                 <option key={cat._id} value={cat._id}>{cat.name}</option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[60vh] custom-scrollbar">
-          <table className="w-full text-left text-[12px] whitespace-nowrap">
-            <thead className="bg-white sticky top-0 z-1 border-b border-slate-100">
-              <tr>
-                <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client Name</th>
-                <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</th>
-                <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Branch</th>
-                <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</th>
-                <th className="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {loading ? (
-                <tr><td colSpan={6} className="text-center py-20 text-slate-300 animate-pulse font-bold">Syncing partners...</td></tr>
-              ) : clients.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-20 text-slate-400">No clients found.</td></tr>
-              ) : (
-                clients.map((client) => (
-                  <tr key={client._id} className="hover:bg-slate-50/80 transition-colors group">
-                    <td className="px-5 py-2.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm p-1">
-                          {client.image ? (
-                            <img src={getImageUrl(client.image)} alt="" className="w-full h-full object-contain" />
-                          ) : (
-                            <span className="text-[10px] font-bold text-slate-300">{client.name.charAt(0)}</span>
-                          )}
-                        </div>
-                        <span className="font-bold text-slate-900">{client.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-2.5">
-                      <span className="px-2 py-0.5 rounded bg-slate-50 text-slate-500 font-bold text-[10px] border border-slate-100">
-                        {client?.category?.name || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-2.5">
-                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-bold text-[10px] border border-blue-100">
-                        {client?.branch?.name || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-2.5 text-slate-500">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3 h-3 text-slate-300" />
-                        {client.location || 'N/A'}
-                      </div>
-                    </td>
-                    <td className="px-5 py-2.5 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => handleEdit(client)} className="p-1.5 text-amber-600 bg-amber-50/50 hover:bg-amber-600 hover:text-white rounded-md transition-all">
-                          <Edit className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => setDeleteTarget(client._id)} className="p-1.5 text-rose-600 bg-rose-50/50 hover:bg-rose-600 hover:text-white rounded-md transition-all">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/20">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            {pagination.total} Total Partners
-          </div>
-          <div className="flex items-center gap-1.5">
-            <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={pagination.page <= 1} className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <div className="flex items-center gap-1">
-              {getPageNumbers().map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setCurrentPage(p)}
-                  className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all ${pagination.page === p ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100'}`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))} disabled={pagination.page >= pagination.pages} className="p-1 text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-all">
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        {/* DataTable */}
+        <DataTable
+          columns={[
+            { label: 'Client Name' },
+            { label: 'Category' },
+            { label: 'Branch' },
+            { label: 'Location' },
+            { label: 'Priority', className: 'text-center' },
+            { label: 'Actions', className: 'text-right' }
+          ]}
+          data={clients}
+          loading={loading}
+          loadingMessage="Syncing partners..."
+          emptyMessage="No clients found."
+          pagination={pagination}
+          onPageChange={setCurrentPage}
+          totalLabel="Total Partners"
+          renderRow={(client) => (
+            <tr key={client._id} className="hover:bg-slate-50/80 transition-colors group">
+              <td className="px-5 py-2.5">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm p-1">
+                    {client.image ? (
+                      <img src={getImageUrl(client.image)} alt="" className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="text-[10px] font-bold text-slate-300">{client.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <span className="font-bold text-slate-900">{client.name}</span>
+                </div>
+              </td>
+              <td className="px-5 py-2.5">
+                <span className="px-2 py-0.5 rounded bg-slate-50 text-slate-500 font-bold text-[10px] border border-slate-100">
+                  {client?.category?.name || 'N/A'}
+                </span>
+              </td>
+              <td className="px-5 py-2.5">
+                <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 font-bold text-[10px] border border-blue-100">
+                  {client?.branch?.name || 'N/A'}
+                </span>
+              </td>
+              <td className="px-5 py-2.5">
+                <div className="flex items-center gap-1.5 text-slate-500">
+                  <MapPin className="w-3 h-3 text-slate-400" />
+                  {client.location || 'N/A'}
+                </div>
+              </td>
+              <td className="px-5 py-2.5 text-center">
+                <span className="font-bold text-slate-600">
+                  {client.priority === 999999 ? '—' : (client.priority ?? '—')}
+                </span>
+              </td>
+              <td className="px-5 py-2.5 text-right">
+                <div className="flex items-center justify-end gap-1">
+                  <button onClick={() => handleEdit(client)} className="p-1.5 text-amber-600 bg-amber-50/50 hover:bg-amber-600 hover:text-white rounded-md transition-all">
+                    <Edit className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={() => setDeleteTarget(client._id)} className="p-1.5 text-rose-600 bg-rose-50/50 hover:bg-rose-600 hover:text-white rounded-md transition-all">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          )}
+        />
       </div>
 
       {/* Form Modal */}
-      <AnimatePresence>
-        {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
-            >
-              <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
-                    <Zap className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900 leading-tight">{editingId ? 'Edit Partner' : 'New Partner'}</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Client Details</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsFormOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.name ? 'text-rose-500' : 'text-slate-400'}`}>
-                      Partner Name
-                    </label>
-                    {showValidation && !formData.name && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
-                  </div>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Omega Hospital"
-                    className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.name ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.location ? 'text-rose-500' : 'text-slate-400'}`}>
-                        Location
-                      </label>
-                      {showValidation && !formData.location && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.location}
-                      onChange={e => setFormData({ ...formData, location: e.target.value })}
-                      placeholder="e.g. Hyderabad"
-                      className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.location ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.category ? 'text-rose-500' : 'text-slate-400'}`}>
-                      Category
-                    </label>
-                    {showValidation && !formData.category && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
-                  </div>
-                  <select
-                    value={formData.category}
-                    onChange={e => setFormData({ ...formData, category: e.target.value })}
-                    className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.category ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
-                  >
-                    <option value="">Select category</option>
-                    {categories.map(cat => (
-                      <option key={cat._id} value={cat._id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Branch
-                  </label>
-                  <select
-                    value={formData.branch}
-                    onChange={e => setFormData({ ...formData, branch: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all focus:border-brand"
-                  >
-                    <option value="">Select branch</option>
-                    {branches.map(branch => (
-                      <option key={branch._id} value={branch._id}>{branch.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && (!previewImage && !selectedFile) ? 'text-rose-500' : 'text-slate-400'}`}>
-                      Brand Logo
-                    </label>
-                    {showValidation && (!previewImage && !selectedFile) && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
-                  </div>
-                  <label className={`relative block h-28 border-2 border-dashed rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all ${showValidation && (!previewImage && !selectedFile) ? 'border-rose-200 bg-rose-50/20' : 'border-slate-100'}`}>
-                    <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
-                    {previewImage ? (
-                      <img src={getImageUrl(previewImage)} alt="Preview" className="w-full h-full object-contain p-2" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-slate-300">
-                        <Upload className="w-5 h-5 mb-1" />
-                        <span className="text-[9px] font-bold uppercase tracking-wider">Upload PNG</span>
-                      </div>
-                    )}
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
-                    Cancel
-                  </button>
-                  <button type="submit" className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
-                    {editingId ? 'Update Partner' : 'Add Partner'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={editingId ? 'Edit Partner' : 'New Partner'}
+        subtitle="Client Details"
+        icon={Zap}
+      >
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.name ? 'text-rose-500' : 'text-slate-400'}`}>
+                Partner Name
+              </label>
+              {showValidation && !formData.name && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+            </div>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g. Omega Hospital"
+              className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.name ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
+            />
           </div>
-        )}
-      </AnimatePresence>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.location ? 'text-rose-500' : 'text-slate-400'}`}>
+                  Location
+                </label>
+                {showValidation && !formData.location && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+              </div>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={e => setFormData({ ...formData, location: e.target.value })}
+                placeholder="e.g. Hyderabad"
+                className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.location ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && !formData.category ? 'text-rose-500' : 'text-slate-400'}`}>
+                Category
+              </label>
+              {showValidation && !formData.category && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+            </div>
+            <select
+              value={formData.category}
+              onChange={e => setFormData({ ...formData, category: e.target.value })}
+              className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all ${showValidation && !formData.category ? 'border-rose-200 focus:border-rose-400' : 'border-slate-200 focus:border-brand'}`}
+            >
+              <option value="">Select category</option>
+              {activeCategories.map(cat => (
+                <option key={cat._id} value={cat._id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Branch
+            </label>
+            <select
+              value={formData.branch}
+              onChange={e => setFormData({ ...formData, branch: e.target.value })}
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all focus:border-brand"
+            >
+              <option value="">Select branch</option>
+              {branches.map(branch => (
+                <option key={branch._id} value={branch._id}>{branch.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Priority
+            </label>
+            <input
+              type="number"
+              value={formData.priority === 999999 ? '' : formData.priority}
+              onChange={e => setFormData({ ...formData, priority: e.target.value === '' ? 999999 : parseInt(e.target.value) })}
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 outline-none transition-all focus:border-brand"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className={`text-[10px] font-bold uppercase tracking-wider ${showValidation && (!previewImage && !selectedFile) ? 'text-rose-500' : 'text-slate-400'}`}>
+                Brand Logo
+              </label>
+              {showValidation && (!previewImage && !selectedFile) && <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Required</span>}
+            </div>
+            <label className={`relative block h-28 border-2 border-dashed rounded-xl overflow-hidden hover:bg-slate-50 cursor-pointer transition-all ${showValidation && (!previewImage && !selectedFile) ? 'border-rose-200 bg-rose-50/20' : 'border-slate-100'}`}>
+              <input type="file" accept="image/*" className="hidden" onChange={onImageChange} />
+              {previewImage ? (
+                <img src={getImageUrl(previewImage)} alt="Preview" className="w-full h-full object-contain p-2" />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                  <Upload className="w-5 h-5 mb-1" />
+                  <span className="text-[9px] font-bold uppercase tracking-wider">Upload PNG</span>
+                </div>
+              )}
+            </label>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
+              Cancel
+            </button>
+            <button type="submit" className="px-5 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm">
+              {editingId ? 'Update Partner' : 'Add Partner'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   )
 }
